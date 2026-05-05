@@ -1,0 +1,31 @@
+<div class="container">
+  <h2>Contract Details</h2>
+
+  <div class="card">
+    <div class="card-body">
+      <p><strong>Job:</strong> <%= link_to @contract.job.title, job_path(@contract.job) %></p>
+      <p><strong>Freelancer:</strong> <%= link_to @contract.freelancer.name, user_path(@contract.freelancer) %></p>
+      <p><strong>Client:</strong> <%= link_to @contract.client.name, user_path(@contract.client) %></p>
+      <p><strong>Status:</strong> <%= @contract.status %></p>
+      <% if @contract.end_date.present? %>
+        <p><strong>End date:</strong> <%= @contract.end_date.strftime('%B %d, %Y') %></p>
+      <% end %>
+    </div>
+  </div>
+
+  <% if current_user.id == @contract.client_id %>
+    <%= form_with(model: @contract, local: true) do |f| %>
+      <div class="form-group">
+        <%= f.label :status %>
+        <%= f.select :status, Contract.statuses.keys.map { |s| [s.titleize, s] }, {}, class: "form-control" %>
+      </div>
+      <div class="form-group">
+        <%= f.label :end_date %>
+        <%= f.date_field :end_date, class: "form-control" %>
+      </div>
+      <%= f.submit "Update Contract", class: "btn btn-primary" %>
+    <% end %>
+  <% end %>
+
+  <%= link_to "Back to Jobs", jobs_path, class: "btn btn-secondary mt-3" %>
+</div>

@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  job: one
+  proposal: one
+  freelancer: one
+  client: one
+  status: MyString
+  start_date: 2026-05-04 11:17:13
+  end_date: 2026-05-04 11:17:13
+
+two:
+  job: two
+  proposal: two
+  freelancer: two
+  client: two
+  status: MyString
+  start_date: 2026-05-04 11:17:13
+  end_date: 2026-05-04 11:17:13

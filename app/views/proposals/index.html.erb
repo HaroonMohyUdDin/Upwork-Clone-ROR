@@ -1,0 +1,36 @@
+<div class="container">
+  <h2>Proposals for <%= link_to @job.title, @job %></h2>
+
+  <% if @proposals.any? %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Freelancer</th>
+          <th>Cover Letter</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @proposals.each do |proposal| %>
+          <tr>
+            <td><%= link_to proposal.user.name, user_path(proposal.user) %></td>
+            <td><%= proposal.cover_letter.truncate(50) %></td>
+            <td><%= proposal.status %></td>
+            <td>
+              <%= link_to "View", proposal, class: "btn btn-sm btn-info" %>
+              <% if current_user == @job.user %>
+                <%= link_to "Accept", accept_proposal_path(proposal), method: :patch, class: "btn btn-sm btn-success" %>
+                <%= link_to "Reject", reject_proposal_path(proposal), method: :patch, class: "btn btn-sm btn-danger" %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>No proposals yet.</p>
+  <% end %>
+
+  <%= link_to "Back to Job", @job, class: "btn btn-secondary" %>
+</div>

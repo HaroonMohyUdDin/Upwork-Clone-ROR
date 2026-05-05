@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  name: MyString
+  issuer: MyString
+  issue_date: 2026-05-04
+  expiry_date: 2026-05-04
+  credential_url: MyString
+
+two:
+  user: two
+  name: MyString
+  issuer: MyString
+  issue_date: 2026-05-04
+  expiry_date: 2026-05-04
+  credential_url: MyString

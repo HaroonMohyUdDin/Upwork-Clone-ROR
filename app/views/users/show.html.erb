@@ -1,0 +1,50 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2><%= @user.name %></h2>
+          <p><strong>Role:</strong> <%= @user.role&.titleize || 'Not set' %></p>
+          <p><strong>Email:</strong> <%= @user.email %></p>
+          <% if @user.bio.present? %>
+            <p><strong>Bio:</strong> <%= @user.bio %></p>
+          <% end %>
+          <% if @user.freelancer? && @user.hourly_rate.present? %>
+            <p><strong>Hourly Rate:</strong> $<%= @user.hourly_rate %>/hr</p>
+          <% end %>
+
+          <% if current_user != @user %>
+            <%= link_to "Message", conversations_path(receiver_id: @user.id), method: :post, class: "btn btn-primary" %>
+          <% end %>
+        </div>
+      </div>
+
+      <h4>Reviews (<%= @user.review_count %>)</h4>
+      <div class="alert alert-info">Average Rating: <%= @user.average_rating %>/5</div>
+
+      <% if @reviews.any? %>
+        <% @reviews.each do |review| %>
+          <div class="card mb-3">
+            <div class="card-body">
+              <h6><%= link_to review.reviewer.name, user_path(review.reviewer) %></h6>
+              <p class="text-warning">
+                <% review.rating.times do %>
+                  ⭐
+                <% end %>
+              </p>
+              <p><%= review.comment %></p>
+              <small class="text-muted"><%= review.created_at.strftime("%B %d, %Y") %></small>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <p>No reviews yet.</p>
+      <% end %>
+    </div>
+
+    <div class="col-md-4">
+    </div>
+  </div>
+
+  <%= link_to "Back to Jobs", jobs_path, class: "btn btn-secondary mt-3" %>
+</div>

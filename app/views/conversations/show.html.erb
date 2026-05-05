@@ -1,0 +1,32 @@
+<div class="container">
+  <h2>Conversation with <%= @conversation.sender == current_user ? @conversation.receiver.name : @conversation.sender.name %></h2>
+
+  <div class="card message-thread mb-3">
+    <div class="card-body">
+      <% @messages.each do |message| %>
+        <div class="mb-3 <%= 'text-end' if message.sender == current_user %>">
+          <small class="text-muted"><strong><%= message.sender.name %></strong></small>
+          <div class="alert message-bubble <%= message.sender == current_user ? 'alert-primary' : 'alert-light' %>">
+            <%= message.content %>
+          </div>
+          <br>
+          <small class="text-muted"><%= message.created_at.strftime("%I:%M %p") %></small>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <%= form_with(model: [@conversation, @message], local: true) do |f| %>
+        <div class="form-group">
+          <%= f.label :content %>
+          <%= f.text_area :content, rows: 3, class: "form-control", placeholder: "Type your message..." %>
+        </div>
+        <%= f.submit "Send Message", class: "btn btn-primary" %>
+      <% end %>
+    </div>
+  </div>
+
+  <%= link_to "Back to Messages", conversations_path, class: "btn btn-secondary mt-3" %>
+</div>

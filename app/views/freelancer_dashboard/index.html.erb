@@ -1,0 +1,147 @@
+<div class="container mx-auto mt-6 px-4">
+  <div class="flex flex-wrap -mx-4">
+    <!-- Sidebar -->
+    <aside class="w-full md:w-1/4 px-4 mb-6 md:mb-0">
+      <div class="bg-white shadow rounded overflow-hidden mb-6">
+        <div class="p-6 text-center">
+          <% if @freelancer.profile_picture.present? %>
+            <img src="<%= @freelancer.profile_picture %>" class="rounded-full mb-4 w-36 h-36 object-cover mx-auto" alt="Profile">
+          <% else %>
+            <div class="rounded-full mb-4 w-36 h-36 bg-gray-200 mx-auto"></div>
+          <% end %>
+          <h3 class="text-lg font-semibold"><%= @freelancer.name %></h3>
+          <p class="text-sm text-gray-500"><%= @freelancer.bio || "No bio yet" %></p>
+
+          <div class="mt-4 text-left">
+            <p class="text-sm"><span class="font-medium">Hourly:</span> $<%= @freelancer.hourly_rate || 'Not set' %>/hr</p>
+            <p class="text-sm"><span class="font-medium">Hours/Week:</span> <%= @freelancer.hours_per_week || 'Not set' %></p>
+            <p class="text-sm"><span class="font-medium">Rating:</span> <%= @freelancer.average_rating %>/5 (<%= @freelancer.review_count %>)</p>
+          </div>
+
+          <div class="mt-4">
+            <%= link_to "Edit Profile", edit_freelancer_profile_path, class: "w-full inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white shadow rounded p-4">
+        <h4 class="font-semibold mb-3">Active Contracts</h4>
+        <% if @contracts.any? %>
+          <% @contracts.each do |contract| %>
+            <div class="mb-3 border-b pb-3">
+              <p class="font-medium"><%= contract.job.title %></p>
+              <p class="text-xs text-gray-500"><%= contract.job.user.name %></p>
+              <div class="mt-2">
+                <%= link_to "View", contract_path(contract), class: "inline-block text-sm text-blue-600 hover:underline" %>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-gray-500">No active contracts</p>
+        <% end %>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <section class="w-full md:w-3/4 px-4">
+
+      <!-- Navigation Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div class="bg-white shadow rounded p-4 text-center">
+          <h5 class="font-medium">View All Jobs</h5>
+          <p class="text-sm text-gray-500">Browse available jobs</p>
+          <div class="mt-3">
+            <%= link_to "View Jobs", jobs_path, class: "inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded" %>
+          </div>
+        </div>
+
+        <div class="bg-white shadow rounded p-4 text-center">
+          <h5 class="font-medium">Total Earned</h5>
+          <p class="text-2xl font-semibold mt-2">$<%= @total_earned || 0 %></p>
+          <div class="mt-3">
+            <%= link_to "View Payments", payments_path, class: "inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded" %>
+          </div>
+        </div>
+
+        <div class="bg-white shadow rounded p-4 text-center">
+          <h5 class="font-medium">My Proposals</h5>
+          <p class="text-sm mt-2"><span class="inline-block bg-gray-100 px-2 py-1 rounded mr-2"><%= @proposals_count %> Total</span><span class="inline-block bg-yellow-100 px-2 py-1 rounded mr-2"><%= @pending_proposals_count %> Pending</span><span class="inline-block bg-green-100 px-2 py-1 rounded"><%= @accepted_proposals_count %> Accepted</span></p>
+          <div class="mt-3">
+            <%= link_to "View All Proposals", proposals_path, class: "inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded" %>
+          </div>
+        </div>
+
+        <div class="bg-white shadow rounded p-4 text-center">
+          <h5 class="font-medium">Messages</h5>
+          <p class="text-sm mt-2"><span class="inline-block bg-red-100 px-2 py-1 rounded"><%= @unread_messages_count %> Unread</span></p>
+          <div class="mt-3">
+            <%= link_to "View Messages", conversations_path, class: "inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded" %>
+          </div>
+        </div>
+
+        <div class="bg-white shadow rounded p-4 text-center">
+          <h5 class="font-medium">My Reviews</h5>
+          <p class="text-sm mt-2"><span class="inline-block bg-green-100 px-2 py-1 rounded"><%= @total_reviews %> Reviews</span></p>
+          <p class="text-sm text-gray-500 mt-2">Average: <%= @freelancer.average_rating %>/5</p>
+        </div>
+
+        <div class="bg-white shadow rounded p-4 text-center">
+          <h5 class="font-medium">All Contracts</h5>
+          <p class="text-sm mt-2"><span class="inline-block bg-gray-100 px-2 py-1 rounded"><%= @all_contracts_count %> Total</span></p>
+          <div class="mt-3">
+            <%= link_to "View All Contracts", contracts_path, class: "inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded" %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills -->
+      <div class="bg-white shadow rounded mb-6">
+        <div class="p-4 flex justify-between items-center">
+          <h4 class="font-semibold">Skills</h4>
+          <button class="bg-green-600 hover:bg-green-700 text-white text-sm py-1 px-3 rounded" data-toggle="modal" data-target="#addSkillModal">+ Add Skill</button>
+        </div>
+        <div class="p-4">
+          <% if @skills.any? %>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <% @skills.each do |skill| %>
+                <div class="p-4 border rounded">
+                  <h6 class="font-medium"><%= skill.name %></h6>
+                  <p class="text-sm text-gray-500 mb-2"><%= skill.proficiency.capitalize %></p>
+                  <div class="flex space-x-2">
+                    <%= link_to "Edit", edit_skill_path(skill), class: "text-sm text-yellow-600 hover:underline" %>
+                    <%= link_to "Delete", skill_path(skill), method: :delete, data: { confirm: "Sure?" }, class: "text-sm text-red-600 hover:underline" %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-sm text-gray-500">No skills added yet. <a href="#" data-toggle="modal" data-target="#addSkillModal" class="text-blue-600 hover:underline">Add your first skill</a></p>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Reviews -->
+      <div class="bg-white shadow rounded">
+        <div class="p-4 border-b">
+          <h4 class="font-semibold">Recent Reviews</h4>
+        </div>
+        <div class="p-4">
+          <% if @reviews.any? %>
+            <% @reviews.each do |review| %>
+              <div class="mb-4 border-b pb-3">
+                <div class="flex justify-between items-center">
+                  <h6 class="font-medium"><%= review.reviewer.name %></h6>
+                  <span class="text-sm bg-blue-100 px-2 py-1 rounded"><%= review.rating %>/5</span>
+                </div>
+                <p class="text-sm text-gray-700 mt-2"><%= review.comment %></p>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-sm text-gray-500">No reviews yet.</p>
+          <% end %>
+        </div>
+      </div>
+
+    </section>
+  </div>
+</div>

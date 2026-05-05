@@ -1,0 +1,17 @@
+<div class="container">
+  <h2>Messages</h2>
+
+  <% if @conversations.any? %>
+    <ul class="list-group">
+      <% @conversations.each do |conversation| %>
+        <li class="list-group-item">
+          <% other_user = conversation.sender == current_user ? conversation.receiver : conversation.sender %>
+          <%= link_to other_user.name, conversation_path(conversation), class: "text-decoration-none" %>
+          <small class="text-muted"><%= conversation.updated_at.strftime("%b %d, %I:%M %p") %></small>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p>No conversations yet.</p>
+  <% end %>
+</div>

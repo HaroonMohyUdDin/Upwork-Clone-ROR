@@ -1,0 +1,71 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12">
+      <h2 class="mb-4">My Contracts</h2>
+      
+      <% if @contracts.any? %>
+        <table class="table table-striped table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th>Job Title</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @contracts.each do |contract| %>
+              <tr>
+                <td><strong><%= contract.job.title %></strong></td>
+                <td>
+                  <% if contract.freelancer_id == current_user.id %>
+                    <span class="badge badge-primary">Freelancer</span>
+                  <% elsif contract.client_id == current_user.id %>
+                    <span class="badge badge-success">Client</span>
+                  <% end %>
+                </td>
+                <td>
+                  <% case contract.status %>
+                    <% when 'active' %>
+                      <span class="badge badge-success">Active</span>
+                    <% when 'completed' %>
+                      <span class="badge badge-primary">Completed</span>
+                    <% when 'cancelled' %>
+                      <span class="badge badge-danger">Cancelled</span>
+                    <% else %>
+                      <span class="badge badge-secondary"><%= contract.status.capitalize %></span>
+                    <% end %>
+                </td>
+                <td><%= contract.created_at.strftime("%B %d, %Y") %></td>
+                <td><%= contract.end_date&.strftime("%B %d, %Y") || "N/A" %></td>
+                <td>
+                  <%= link_to "View", contract_path(contract), class: "btn btn-sm btn-info" %>
+                  <% if current_user.id == contract.client_id %>
+                    <%= link_to "Edit", edit_contract_path(contract), class: "btn btn-sm btn-warning" %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="alert alert-info">
+          <p>You don't have any contracts yet.</p>
+          <%= link_to "Browse Jobs", jobs_path, class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+  .table {
+    margin-top: 20px;
+  }
+  .badge {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
+</style>

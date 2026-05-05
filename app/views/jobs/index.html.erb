@@ -1,0 +1,26 @@
+<div class="space-y-5">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-2xl font-bold text-slate-900">Available Jobs</h1>
+
+    <% if user_signed_in? && current_user.client? %>
+      <%= link_to "Post a New Job", new_job_path, class: "inline-flex rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-700" %>
+    <% end %>
+  </div>
+
+  <% if @jobs.any? %>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <% @jobs.each do |job| %>
+        <article class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h3 class="text-lg font-semibold text-slate-900"><%= link_to job.title, job_path(job), class: "hover:text-emerald-700" %></h3>
+          <p class="mt-2 text-sm text-slate-700"><strong>Budget:</strong> $<%= job.budget %></p>
+          <p class="text-sm text-slate-700"><strong>Category:</strong> <%= job.category %></p>
+          <p class="text-sm text-slate-700"><strong>Posted by:</strong> <%= job.user.name %></p>
+          <p class="mt-2 text-sm text-slate-600"><%= truncate(job.description, length: 150) %></p>
+          <%= link_to "View Details", job_path(job), class: "mt-3 inline-flex rounded-md bg-sky-100 px-3 py-2 text-xs font-semibold text-sky-800 hover:bg-sky-200" %>
+        </article>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-slate-600">No jobs available yet.</p>
+  <% end %>
+</div>

@@ -1,14 +1,44 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  devise_for :users, controllers: { registrations: "users/registrations" }
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  root "home#index"
+
+  get "freelancer-dashboard", to: "freelancer_dashboard#index", as: :freelancer_dashboard
+  get "freelancer-profile/edit", to: "freelancer_dashboard#edit_profile", as: :edit_freelancer_profile
+  patch "freelancer-profile/update", to: "freelancer_dashboard#update_profile", as: :update_freelancer_profile
+  get "client-dashboard", to: "client_dashboard#index", as: :client_dashboard
+
+  resources :skills, only: [:create, :edit, :update, :destroy]
+
+  resources :jobs do
+    resources :proposals, only: [:create, :index] do
+      member do
+        patch :accept
+        patch :reject
+      end
+    end
+
+    resources :reviews, only: [:new, :create]
+  end
+
+  resources :proposals, only: [] do
+    member do
+      patch :accept
+      patch :reject
+    end
+  end
+
+    resources :proposals, only: [:index]
+
+    resources :contracts, only: [:show, :update, :index]
+
+  resources :conversations, only: [:index, :show, :create] do
+    resources :messages, only: [:create]
+  end
+
+  resources :reviews, only: [:create]
+  resources :payments, only: [:new, :create, :index]
+  resources :users, only: [:show, :edit, :update], constraints: { id: /\d+/ }
+
   get "up" => "rails/health#show", as: :rails_health_check
-
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-
-  # Defines the root path route ("/")
-  # root "posts#index"
 end

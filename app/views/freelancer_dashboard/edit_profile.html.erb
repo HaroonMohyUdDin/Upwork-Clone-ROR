@@ -1,0 +1,48 @@
+<div class="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+  <h1 class="mb-6 text-2xl font-bold text-slate-900">Edit Profile</h1>
+
+  <%= form_with(model: @freelancer, local: true, url: update_freelancer_profile_path, method: :patch, class: "space-y-5") do |form| %>
+    <% if @freelancer.errors.any? %>
+      <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
+        <h4 class="mb-2 font-semibold"><%= pluralize(@freelancer.errors.count, "error") %> prohibited this profile:</h4>
+        <ul class="list-disc space-y-1 pl-5 text-sm">
+          <% @freelancer.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div>
+      <%= form.label :name, class: "mb-2 block text-sm font-medium text-slate-700" %>
+      <%= form.text_field :name, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
+    </div>
+
+    <div>
+      <%= form.label :bio, class: "mb-2 block text-sm font-medium text-slate-700" %>
+      <%= form.text_area :bio, rows: 4, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200", placeholder: "Tell clients about yourself..." %>
+    </div>
+
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div>
+        <%= form.label :hourly_rate, "Hourly Rate ($)", class: "mb-2 block text-sm font-medium text-slate-700" %>
+        <%= form.number_field :hourly_rate, step: 0.01, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
+      </div>
+
+      <div>
+        <%= form.label :hours_per_week, "Hours Per Week", class: "mb-2 block text-sm font-medium text-slate-700" %>
+        <%= form.number_field :hours_per_week, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
+      </div>
+    </div>
+
+    <div>
+      <%= form.label :profile_picture, class: "mb-2 block text-sm font-medium text-slate-700" %>
+      <%= form.text_field :profile_picture, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200", placeholder: "Image URL" %>
+    </div>
+
+    <div class="flex flex-wrap gap-3 pt-2">
+      <%= form.submit "Save Changes", class: "rounded-full bg-emerald-600 px-5 py-2 font-medium text-white hover:bg-emerald-700" %>
+      <%= link_to "Cancel", freelancer_dashboard_path, class: "rounded-full border border-slate-300 px-5 py-2 font-medium text-slate-700 hover:bg-slate-100" %>
+    </div>
+  <% end %>
+</div>

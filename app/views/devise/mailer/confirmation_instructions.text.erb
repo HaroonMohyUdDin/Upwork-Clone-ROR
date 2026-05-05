@@ -1,0 +1,7 @@
+<%= @email %>
+
+Welcome to Upwork Clone! Please confirm your email address by visiting the link below:
+
+<%= confirmation_url(@resource, confirmation_token: @token) %>
+
+If you didn't sign up for this account, you can ignore this email.
