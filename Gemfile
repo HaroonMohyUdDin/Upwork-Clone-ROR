@@ -27,7 +27,7 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 gem "solid_cache"
 gem "solid_queue"
 gem "solid_cable"
-
+gem "tailwindcss-rails"
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
@@ -55,7 +55,6 @@ group :development, :test do
 end
 gem "devise"
 gem "fiddle"
-gem "tailwindcss-rails"
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"

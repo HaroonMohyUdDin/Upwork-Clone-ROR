@@ -1,17 +1,21 @@
-<div class="container">
-  <h2>Messages</h2>
+<div class="space-y-4">
+  <h2 class="text-2xl font-bold text-slate-900">Messages</h2>
 
   <% if @conversations.any? %>
-    <ul class="list-group">
+    <div class="space-y-2">
       <% @conversations.each do |conversation| %>
-        <li class="list-group-item">
-          <% other_user = conversation.sender == current_user ? conversation.receiver : conversation.sender %>
-          <%= link_to other_user.name, conversation_path(conversation), class: "text-decoration-none" %>
-          <small class="text-muted"><%= conversation.updated_at.strftime("%b %d, %I:%M %p") %></small>
-        </li>
+        <% other_user = conversation.sender == current_user ? conversation.receiver : conversation.sender %>
+        <%= link_to conversation_path(conversation), class: "block rounded-lg border border-slate-200 bg-white p-4 hover:bg-slate-50" do %>
+          <div class="flex items-center justify-between">
+            <p class="font-medium text-slate-900"><%= other_user.name %></p>
+            <span class="text-xs text-slate-500"><%= conversation.updated_at.strftime("%b %d, %I:%M %p") %></span>
+          </div>
+        <% end %>
       <% end %>
-    </ul>
+    </div>
   <% else %>
-    <p>No conversations yet.</p>
+    <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+      <p class="text-slate-600">No conversations yet.</p>
+    </div>
   <% end %>
 </div>

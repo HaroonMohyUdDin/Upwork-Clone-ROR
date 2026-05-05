@@ -1,32 +1,31 @@
-<div class="container">
-  <h2>Conversation with <%= @conversation.sender == current_user ? @conversation.receiver.name : @conversation.sender.name %></h2>
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold text-slate-900">Conversation with <%= @conversation.sender == current_user ? @conversation.receiver.name : @conversation.sender.name %></h2>
 
-  <div class="card message-thread mb-3">
-    <div class="card-body">
+  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="space-y-4 max-h-96 overflow-y-auto">
       <% @messages.each do |message| %>
-        <div class="mb-3 <%= 'text-end' if message.sender == current_user %>">
-          <small class="text-muted"><strong><%= message.sender.name %></strong></small>
-          <div class="alert message-bubble <%= message.sender == current_user ? 'alert-primary' : 'alert-light' %>">
-            <%= message.content %>
+        <div class="flex <%= 'justify-end' if message.sender == current_user %>">
+          <div class="<%= message.sender == current_user ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-900' %> max-w-xs rounded-lg px-4 py-2">
+            <p class="mb-1 text-xs font-medium <%= message.sender == current_user ? 'text-emerald-100' : 'text-slate-500' %>"><%= message.sender.name %></p>
+            <p class="text-sm"><%= message.content %></p>
+            <p class="mt-1 text-xs <%= message.sender == current_user ? 'text-emerald-200' : 'text-slate-500' %>"><%= message.created_at.strftime("%I:%M %p") %></p>
           </div>
-          <br>
-          <small class="text-muted"><%= message.created_at.strftime("%I:%M %p") %></small>
         </div>
       <% end %>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-body">
-      <%= form_with(model: [@conversation, @message], local: true) do |f| %>
-        <div class="form-group">
-          <%= f.label :content %>
-          <%= f.text_area :content, rows: 3, class: "form-control", placeholder: "Type your message..." %>
-        </div>
-        <%= f.submit "Send Message", class: "btn btn-primary" %>
-      <% end %>
-    </div>
+  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <%= form_with(model: [@conversation, @message], local: true, class: "space-y-4") do |f| %>
+      <div>
+        <%= f.label :content, class: "mb-2 block text-sm font-medium text-slate-700" %>
+        <%= f.text_area :content, rows: 3, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200", placeholder: "Type your message..." %>
+      </div>
+      <div>
+        <%= f.submit "Send Message", class: "rounded-full bg-emerald-600 px-5 py-2 font-semibold text-white hover:bg-emerald-700" %>
+      </div>
+    <% end %>
   </div>
 
-  <%= link_to "Back to Messages", conversations_path, class: "btn btn-secondary mt-3" %>
+  <%= link_to "Back to Messages", conversations_path, class: "inline-flex rounded-full border border-slate-300 px-5 py-2 font-semibold text-slate-700 hover:bg-slate-100" %>
 </div>

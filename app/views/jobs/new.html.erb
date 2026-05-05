@@ -1,11 +1,11 @@
-<div class="container">
-  <h1>Post a New Job</h1>
-  
-  <%= form_with(model: @job, local: true) do |form| %>
+<div class="mx-auto max-w-2xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+  <h1 class="mb-6 text-2xl font-bold text-slate-900">Post a New Job</h1>
+
+  <%= form_with(model: @job, local: true, class: "space-y-5") do |form| %>
     <% if @job.errors.any? %>
-      <div id="error_explanation">
-        <h2><%= pluralize(@job.errors.count, "error") %> prohibited this job from being saved:</h2>
-        <ul>
+      <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
+        <h2 class="mb-2 font-semibold"><%= pluralize(@job.errors.count, "error") %> prohibited this job from being saved:</h2>
+        <ul class="list-disc space-y-1 pl-5 text-sm">
           <% @job.errors.full_messages.each do |message| %>
             <li><%= message %></li>
           <% end %>
@@ -13,35 +13,36 @@
       </div>
     <% end %>
 
-    <div class="form-group">
-      <%= form.label :title %>
-      <%= form.text_field :title, class: "form-control" %>
+    <div>
+      <%= form.label :title, class: "mb-2 block text-sm font-medium text-slate-700" %>
+      <%= form.text_field :title, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
     </div>
 
-    <div class="form-group">
-      <%= form.label :description %>
-      <%= form.text_area :description, rows: 5, class: "form-control" %>
+    <div>
+      <%= form.label :description, class: "mb-2 block text-sm font-medium text-slate-700" %>
+      <%= form.text_area :description, rows: 5, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
     </div>
 
-    <div class="form-group">
-      <%= form.label :budget %>
-      <%= form.number_field :budget, step: 0.01, class: "form-control" %>
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div>
+        <%= form.label :budget, class: "mb-2 block text-sm font-medium text-slate-700" %>
+        <%= form.number_field :budget, step: 0.01, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
+      </div>
+
+      <div>
+        <%= form.label :category, class: "mb-2 block text-sm font-medium text-slate-700" %>
+        <%= form.text_field :category, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
+      </div>
     </div>
 
-    <div class="form-group">
-      <%= form.label :category %>
-      <%= form.text_field :category, class: "form-control" %>
+    <div>
+      <%= form.label :deadline, class: "mb-2 block text-sm font-medium text-slate-700" %>
+      <%= form.datetime_field :deadline, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
     </div>
 
-    <div class="form-group">
-      <%= form.label :deadline %>
-      <%= form.datetime_field :deadline, class: "form-control" %>
-    </div>
-
-    <div class="form-group">
-      <%= form.submit "Post Job", class: "btn btn-primary" %>
+    <div class="flex flex-wrap gap-3 pt-2">
+      <%= form.submit "Post Job", class: "rounded-full bg-emerald-600 px-5 py-2 font-semibold text-white hover:bg-emerald-700" %>
+      <%= link_to "Back", jobs_path, class: "rounded-full border border-slate-300 px-5 py-2 font-semibold text-slate-700 hover:bg-slate-100" %>
     </div>
   <% end %>
-
-  <%= link_to "Back", jobs_path, class: "btn btn-secondary" %>
 </div>

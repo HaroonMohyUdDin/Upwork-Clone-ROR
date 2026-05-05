@@ -1,60 +1,93 @@
-<div class="container">
-  <h1><%= @job.title %></h1>
-  
-  <div class="job-details">
-    <p><strong>Description:</strong> <%= @job.description %></p>
-    <p><strong>Budget:</strong> $<%= @job.budget %></p>
-    <p><strong>Category:</strong> <%= @job.category %></p>
-    <p><strong>Status:</strong> <%= @job.status %></p>
-    <p><strong>Posted by:</strong> <%= @job.user.name %></p>
-    <p><strong>Posted on:</strong> <%= @job.created_at.strftime("%B %d, %Y") %></p>
-  </div>
+<div class="space-y-6">
+  <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold text-slate-900"><%= @job.title %></h1>
+    </div>
+
+    <dl class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div>
+        <dt class="text-sm font-semibold text-slate-700">Description</dt>
+        <dd class="mt-1 text-slate-600"><%= @job.description %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-semibold text-slate-700">Budget</dt>
+        <dd class="mt-1 text-lg font-semibold text-emerald-600">$<%= @job.budget %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-semibold text-slate-700">Category</dt>
+        <dd class="mt-1 text-slate-600"><%= @job.category %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-semibold text-slate-700">Status</dt>
+        <dd class="mt-1"><span class="inline-block rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-800"><%= @job.status %></span></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-semibold text-slate-700">Posted by</dt>
+        <dd class="mt-1"><%= link_to @job.user.name, user_path(@job.user), class: "text-emerald-600 hover:text-emerald-700" %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-semibold text-slate-700">Posted on</dt>
+        <dd class="mt-1 text-slate-600"><%= @job.created_at.strftime("%B %d, %Y") %></dd>
+      </div>
+    </dl>
+  </article>
 
   <% if user_signed_in? && current_user.freelancer? && current_user != @job.user %>
-    <h3>Submit a Proposal</h3>
-    <%= form_with(model: [@job, @job.proposals.build], local: true) do |form| %>
-      <div class="form-group">
-        <%= form.label :cover_letter %>
-        <%= form.text_area :cover_letter, rows: 5, class: "form-control" %>
-      </div>
-      <%= form.submit "Submit Proposal", class: "btn btn-success" %>
-    <% end %>
-  <% end %>
-
-  <h3>Proposals (<%= @proposals.count %>)</h3>
-  <% if user_signed_in? && current_user == @job.user %>
-    <%= link_to "View All Proposals", job_proposals_path(@job), class: "btn btn-info mb-3" %>
-  <% end %>
-
-  <% if @proposals.any? %>
-    <% @proposals.each do |proposal| %>
-      <div class="card mb-3">
-        <div class="card-body">
-          <h6><strong>From:</strong> <%= link_to proposal.user.name, user_path(proposal.user) %></h6>
-          <p><strong>Status:</strong> <%= proposal.status %></p>
-          <p><%= proposal.cover_letter %></p>
-          <small class="text-muted"><%= proposal.created_at.strftime("%B %d, %Y") %></small>
-          <br>
-          <% if user_signed_in? %>
-            <%= link_to "View Proposal", proposal, class: "btn btn-sm btn-info" %>
-            <% if current_user != proposal.user %>
-              <%= link_to "Message", conversations_path(receiver_id: proposal.user.id), method: :post, class: "btn btn-sm btn-primary" %>
-            <% end %>
-          <% end %>
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 class="mb-4 text-xl font-semibold text-slate-900">Submit a Proposal</h3>
+      <%= form_with(model: [@job, @job.proposals.build], local: true, class: "space-y-4") do |form| %>
+        <div>
+          <%= form.label :cover_letter, class: "mb-2 block text-sm font-medium text-slate-700" %>
+          <%= form.text_area :cover_letter, rows: 5, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
         </div>
-      </div>
-    <% end %>
-  <% else %>
-    <p>No proposals yet.</p>
-  <% end %>
-
-  <% if user_signed_in? && current_user == @job.user %>
-    <div class="mt-4">
-      <%= link_to "Leave Review", new_job_review_path(@job), class: "btn btn-warning" %>
-      <%= link_to "Edit", edit_job_path(@job), class: "btn btn-warning" %>
-      <%= link_to "Delete", job_path(@job), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger" %>
+        <div>
+          <%= form.submit "Submit Proposal", class: "rounded-full bg-green-600 px-5 py-2 font-semibold text-white hover:bg-green-700" %>
+        </div>
+      <% end %>
     </div>
   <% end %>
 
-  <%= link_to "Back to Jobs", jobs_path, class: "btn btn-secondary mt-3" %>
+  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="mb-4 flex items-center justify-between">
+      <h3 class="text-xl font-semibold text-slate-900">Proposals (<%= @proposals.count %>)</h3>
+      <% if user_signed_in? && current_user == @job.user %>
+        <%= link_to "View All", job_proposals_path(@job), class: "rounded-md bg-sky-100 px-3 py-2 text-xs font-semibold text-sky-800 hover:bg-sky-200" %>
+      <% end %>
+    </div>
+
+    <% if @proposals.any? %>
+      <div class="space-y-3">
+        <% @proposals.each do |proposal| %>
+          <div class="rounded-lg border border-slate-200 p-4">
+            <div class="mb-3 flex items-start justify-between">
+              <div>
+                <h6 class="font-semibold text-slate-900"><%= link_to proposal.user.name, user_path(proposal.user), class: "text-emerald-600 hover:text-emerald-700" %></h6>
+                <p class="mt-1 text-xs text-slate-500"><%= proposal.created_at.strftime("%B %d, %Y") %></p>
+              </div>
+              <span class="text-xs font-semibold text-slate-600"><%= proposal.status %></span>
+            </div>
+            <p class="mb-3 text-sm text-slate-700"><%= proposal.cover_letter %></p>
+            <div class="flex flex-wrap gap-2">
+              <%= link_to "View", proposal, class: "rounded-md bg-sky-100 px-3 py-1.5 text-xs font-semibold text-sky-800 hover:bg-sky-200" %>
+              <% if user_signed_in? && current_user != proposal.user %>
+                <%= link_to "Message", conversations_path(receiver_id: proposal.user.id), method: :post, class: "rounded-md bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-200" %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-slate-600">No proposals yet.</p>
+    <% end %>
+  </div>
+
+  <% if user_signed_in? && current_user == @job.user %>
+    <div class="flex flex-wrap gap-3">
+      <%= link_to "Leave Review", new_job_review_path(@job), class: "rounded-full bg-amber-600 px-5 py-2 font-semibold text-white hover:bg-amber-700" %>
+      <%= link_to "Edit", edit_job_path(@job), class: "rounded-full bg-slate-600 px-5 py-2 font-semibold text-white hover:bg-slate-700" %>
+      <%= link_to "Delete", job_path(@job), method: :delete, data: { confirm: "Are you sure?" }, class: "rounded-full bg-red-600 px-5 py-2 font-semibold text-white hover:bg-red-700" %>
+    </div>
+  <% end %>
+
+  <%= link_to "Back to Jobs", jobs_path, class: "inline-flex rounded-full border border-slate-300 px-5 py-2 font-semibold text-slate-700 hover:bg-slate-100" %>
 </div>

@@ -1,71 +1,63 @@
-<div class="container mt-4">
-  <div class="row">
-    <div class="col-md-12">
-      <h2 class="mb-4">My Contracts</h2>
-      
-      <% if @contracts.any? %>
-        <table class="table table-striped table-hover">
-          <thead class="table-dark">
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold text-slate-900">My Contracts</h2>
+
+  <% if @contracts.any? %>
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+          <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
-              <th>Job Title</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Actions</th>
+              <th class="px-3 py-3">Job Title</th>
+              <th class="px-3 py-3">Role</th>
+              <th class="px-3 py-3">Status</th>
+              <th class="px-3 py-3">Start Date</th>
+              <th class="px-3 py-3">End Date</th>
+              <th class="px-3 py-3">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="divide-y divide-slate-100">
             <% @contracts.each do |contract| %>
               <tr>
-                <td><strong><%= contract.job.title %></strong></td>
-                <td>
+                <td class="px-3 py-3 font-medium text-slate-900"><%= contract.job.title %></td>
+                <td class="px-3 py-3">
                   <% if contract.freelancer_id == current_user.id %>
-                    <span class="badge badge-primary">Freelancer</span>
+                    <span class="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-semibold text-indigo-800">Freelancer</span>
                   <% elsif contract.client_id == current_user.id %>
-                    <span class="badge badge-success">Client</span>
+                    <span class="rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-800">Client</span>
                   <% end %>
                 </td>
-                <td>
+                <td class="px-3 py-3">
                   <% case contract.status %>
                     <% when 'active' %>
-                      <span class="badge badge-success">Active</span>
+                      <span class="rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-800">Active</span>
                     <% when 'completed' %>
-                      <span class="badge badge-primary">Completed</span>
+                      <span class="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800">Completed</span>
                     <% when 'cancelled' %>
-                      <span class="badge badge-danger">Cancelled</span>
+                      <span class="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-800">Cancelled</span>
                     <% else %>
-                      <span class="badge badge-secondary"><%= contract.status.capitalize %></span>
+                      <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800"><%= contract.status.capitalize %></span>
                     <% end %>
                 </td>
-                <td><%= contract.created_at.strftime("%B %d, %Y") %></td>
-                <td><%= contract.end_date&.strftime("%B %d, %Y") || "N/A" %></td>
-                <td>
-                  <%= link_to "View", contract_path(contract), class: "btn btn-sm btn-info" %>
-                  <% if current_user.id == contract.client_id %>
-                    <%= link_to "Edit", edit_contract_path(contract), class: "btn btn-sm btn-warning" %>
-                  <% end %>
+                <td class="px-3 py-3 text-slate-600"><%= contract.created_at.strftime("%b %d, %Y") %></td>
+                <td class="px-3 py-3 text-slate-600"><%= contract.end_date&.strftime("%b %d, %Y") || "—" %></td>
+                <td class="px-3 py-3">
+                  <div class="flex flex-wrap gap-2">
+                    <%= link_to "View", contract_path(contract), class: "rounded-md bg-sky-100 px-3 py-1.5 text-xs font-semibold text-sky-800 hover:bg-sky-200" %>
+                    <% if current_user.id == contract.client_id %>
+                      <%= link_to "Edit", edit_contract_path(contract), class: "rounded-md bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-800 hover:bg-amber-200" %>
+                    <% end %>
+                  </div>
                 </td>
               </tr>
             <% end %>
           </tbody>
         </table>
-      <% else %>
-        <div class="alert alert-info">
-          <p>You don't have any contracts yet.</p>
-          <%= link_to "Browse Jobs", jobs_path, class: "btn btn-primary" %>
-        </div>
-      <% end %>
+      </div>
     </div>
-  </div>
+  <% else %>
+    <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 text-blue-800">
+      <p class="mb-3">You don't have any contracts yet.</p>
+      <%= link_to "Browse Jobs", jobs_path, class: "inline-flex rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700" %>
+    </div>
+  <% end %>
 </div>
-
-<style>
-  .table {
-    margin-top: 20px;
-  }
-  .badge {
-    padding: 5px 10px;
-    font-size: 0.85rem;
-  }
-</style>

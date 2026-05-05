@@ -1,61 +1,35 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title><%= content_for(:title) || "Upwork" %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Upwork">
-    <meta name="mobile-web-app-capable" content="yes">
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= content_for(:title) || "Upwork Clone | Freelance Marketplace" %></title>
+  <meta name="description" content="Connect with talented freelancers or find amazing projects.">
+  
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
 
-    <%= yield :head %>
-
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
-
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
+  <link rel="icon" href="/icon.png" type="image/png">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon.png">
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
-  </head>
 
-  <body class="min-h-screen bg-slate-50 text-slate-800">
-    <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
-      <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3">
-        <%= link_to "Upwork", root_path, class: "text-xl font-extrabold tracking-tight text-emerald-700 no-underline hover:no-underline" %>
+  <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+</head>
 
-        <nav class="flex flex-wrap items-center gap-2 text-sm font-medium">
-          <% if user_signed_in? %>
-            <%= link_to "Dashboard", current_user.freelancer? ? freelancer_dashboard_path : client_dashboard_path, class: "rounded-md px-3 py-2 text-slate-700 no-underline hover:bg-emerald-50 hover:text-emerald-800 hover:no-underline" %>
-            <%= link_to "Jobs", jobs_path, class: "rounded-md px-3 py-2 text-slate-700 no-underline hover:bg-emerald-50 hover:text-emerald-800 hover:no-underline" %>
-            <% if current_user.client? %>
-              <%= link_to "My Jobs", jobs_path, class: "rounded-md px-3 py-2 text-slate-700 no-underline hover:bg-emerald-50 hover:text-emerald-800 hover:no-underline" %>
-              <%= link_to "Post Job", new_job_path, class: "inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-white no-underline hover:bg-emerald-700 hover:no-underline" %>
-            <% elsif current_user.freelancer? %>
-              <%= link_to "Edit Profile", edit_freelancer_profile_path, class: "rounded-md px-3 py-2 text-slate-700 no-underline hover:bg-emerald-50 hover:text-emerald-800 hover:no-underline" %>
-              <%= link_to "Browse Jobs", jobs_path, class: "inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-white no-underline hover:bg-emerald-700 hover:no-underline" %>
-            <% end %>
-            <%= link_to "Messages", conversations_path, class: "rounded-md px-3 py-2 text-slate-700 no-underline hover:bg-emerald-50 hover:text-emerald-800 hover:no-underline" %>
-            <%= link_to "Sign out", destroy_user_session_path, method: :delete, class: "inline-flex items-center rounded-full border border-slate-300 px-4 py-2 text-slate-700 no-underline hover:bg-slate-100 hover:no-underline" %>
-          <% else %>
-            <%= link_to "Sign in", new_user_session_path, class: "rounded-md px-3 py-2 text-slate-700 no-underline hover:bg-emerald-50 hover:text-emerald-800 hover:no-underline" %>
-            <%= link_to "Sign up", new_user_registration_path, class: "inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-white no-underline hover:bg-emerald-700 hover:no-underline" %>
-          <% end %>
-        </nav>
-      </div>
-    </header>
+<body class="min-h-screen bg-slate-50 text-slate-800">
+  <%= render "shared/navbar" %>
 
-    <main class="mx-auto w-full max-w-6xl px-4 py-6">
-      <% flash.each do |type, message| %>
-        <div class="mb-4 rounded-lg border px-4 py-3 <%= type.to_s == "notice" ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-red-200 bg-red-50 text-red-800" %>"><%= message %></div>
-      <% end %>
-
+  <main class="min-h-screen">
+    <div class="mx-auto max-w-6xl px-4 py-6">
+      <%= render "shared/flash" %>
       <%= yield %>
-    </main>
-  </body>
+    </div>
+  </main>
+
+  <%= render "shared/footer" %>
+</body>
 </html>

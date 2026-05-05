@@ -1,0 +1,48 @@
+<header class="sticky top-0 z-20 border-b border-gray-200 bg-white/95 backdrop-blur">
+  <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3">
+    <!-- Logo -->
+    <div class="flex items-center gap-2">
+      <%= link_to root_path, class: "text-xl font-extrabold tracking-tight text-emerald-700 no-underline hover:no-underline flex items-center gap-2" do %>
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L9 5.414V18a1 1 0 102 0V5.414l6.293 6.293a1 1 0 001.414-1.414l-7-7z" />
+        </svg>
+        <span>Upwork</span>
+      <% end %>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex flex-wrap items-center gap-2 text-sm font-medium">
+      <% if user_signed_in? %>
+        <% if current_user.freelancer? %>
+          <%= link_to "Find Work", jobs_path, class: "rounded-md px-3 py-2 text-slate-700 no-underline hover:bg-emerald-50 hover:text-emerald-800" %>
+          <%= link_to "My Dashboard", freelancer_dashboard_path, class: "rounded-md px-3 py-2 text-slate-700 no-underline hover:bg-emerald-50 hover:text-emerald-800" %>
+        <% elsif current_user.client? %>
+          <%= link_to "Post Job", new_job_path, class: "inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-white no-underline hover:bg-emerald-700" %>
+          <%= link_to "My Dashboard", client_dashboard_path, class: "rounded-md px-3 py-2 text-slate-700 no-underline hover:bg-emerald-50 hover:text-emerald-800" %>
+        <% end %>
+
+        <%= link_to "Messages", conversations_path, class: "rounded-md px-3 py-2 text-slate-700 no-underline hover:bg-emerald-50 hover:text-emerald-800 relative" %>
+
+        <!-- User Menu -->
+        <div class="relative group">
+          <button class="flex items-center gap-2 rounded-md px-3 py-2 text-slate-700 hover:bg-gray-100">
+            <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center text-sm font-bold">
+              <%= current_user.name.first.upcase %>
+            </div>
+            <%= current_user.name %>
+          </button>
+
+          <div class="absolute right-0 mt-0 w-48 bg-white rounded-lg shadow-lg border border-gray-200 hidden group-hover:block z-50">
+            <%= link_to "Profile", user_path(current_user), class: "block px-4 py-2 text-gray-700 hover:bg-gray-50 first:rounded-t-lg" %>
+            <%= link_to "Settings", edit_user_path(current_user), class: "block px-4 py-2 text-gray-700 hover:bg-gray-50" %>
+            <hr class="my-0">
+            <%= link_to "Sign Out", destroy_user_session_path, method: :delete, class: "block px-4 py-2 text-red-600 hover:bg-red-50 last:rounded-b-lg" %>
+          </div>
+        </div>
+      <% else %>
+        <%= link_to "Sign In", new_user_session_path, class: "rounded-md px-3 py-2 text-slate-700 no-underline hover:bg-emerald-50 hover:text-emerald-800" %>
+        <%= link_to "Sign Up", new_user_registration_path, class: "inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-white no-underline hover:bg-emerald-700" %>
+      <% end %>
+    </nav>
+  </div>
+</header>
