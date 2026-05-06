@@ -1,10 +1,7 @@
 class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
 
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
-
-  # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
 
   protected
@@ -15,7 +12,8 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
-    resource.freelancer? ? redirect_tofreelancer_dashboard_path : client_dashboard_path
+    # FIX: Removed the typo "redirect_to"
+    resource.freelancer? ? freelancer_dashboard_path : client_dashboard_path
   end
 
   def after_sign_up_path_for(resource)
@@ -23,10 +21,10 @@ class ApplicationController < ActionController::Base
   end
 
   def authorize_freelancer!
-    redirect_to root_path, alert: 'Not authorized' unless current_user.freelancer?
+    redirect_to root_path, alert: 'Not authorized' unless current_user&.freelancer?
   end
 
   def authorize_client!
-    redirect_to root_path, alert: 'Not authorized' unless current_user.client?
+    redirect_to root_path, alert: 'Not authorized' unless current_user&.client?
   end
 end

@@ -1,30 +1,40 @@
 class ContractsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_contract, only: [:show, :update]
-
-  def show
-    unless [@contract.freelancer_id, @contract.client_id].include?(current_user.id)
-      redirect_to root_path, alert: 'Not authorized to view this contract' and return
-    end
-  end
+  before_action :set_contract, only: [:show, :complete, :cancel]
 
   def index
-    # Show contracts where user is either freelancer or client
-    @contracts = Contract.where('freelancer_id = ? OR client_id = ?', current_user.id, current_user.id)
-                          .includes(:job)
-                          .order(created_at: :desc)
+    @active_contracts = Contract.where(client_id: current_user.id, status: :active)
+      .includes(:freelancer, :job)
+      .order(created_at: :desc)
+    @completed_contracts = Contract.where(client_id: current_user.id, status: :completed)
+      .includes(:freelancer, :job)
+      .order(created_at: :desc)
+      .limit(5)
   end
 
-  def update
-    # Allow client to update contract (e.g., mark completed or cancelled)
-    unless current_user.id == @contract.client_id
-      redirect_to @contract, alert: 'Only the client can update the contract' and return
-    end
+  def show
+    authorize_contract_user!
+  end
 
-    if @contract.update(contract_params)
-      redirect_to @contract, notice: 'Contract updated'
+  # Mark contract as complete (CLIENT ONLY)
+  def complete
+    authorize_contract_client!
+    
+    if @contract.update(status: :completed)
+      redirect_to @contract, notice: 'Contract marked as complete! You can now review the freelancer.'
     else
-      redirect_to @contract, alert: 'Unable to update contract'
+      redirect_to @contract, alert: 'Error completing contract'
+    end
+  end
+
+  # Cancel contract (CLIENT ONLY)
+  def cancel
+    authorize_contract_client!
+    
+    if @contract.update(status: :cancelled)
+      redirect_to contracts_path, notice: 'Contract cancelled'
+    else
+      redirect_to @contract, alert: 'Error cancelling contract'
     end
   end
 
@@ -34,7 +44,11 @@ class ContractsController < ApplicationController
     @contract = Contract.find(params[:id])
   end
 
-  def contract_params
-    params.require(:contract).permit(:status, :end_date)
+  def authorize_contract_user!
+    redirect_to root_path unless @contract.freelancer == current_user || @contract.client == current_user
+  end
+
+  def authorize_contract_client!
+    redirect_to root_path, alert: 'Not authorized' unless @contract.client == current_user
   end
 end

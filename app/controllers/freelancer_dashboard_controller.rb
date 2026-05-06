@@ -4,8 +4,8 @@ class FreelancerDashboardController < ApplicationController
 
   def index
     @freelancer = current_user
-    @skills = @freelancer.skills
-    @contracts = @freelancer.contracts_as_freelancer.active_contracts
+    @skills = @freelancer.skills || []
+    @contracts = @freelancer.contracts_as_freelancer.where(status: 'active')
     @reviews = @freelancer.reviews_as_reviewee.limit(5)
     
       # Additional dashboard data

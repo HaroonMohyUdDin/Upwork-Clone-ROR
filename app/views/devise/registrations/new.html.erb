@@ -14,7 +14,7 @@
 
     <div>
       <%= f.label :role, class: "mb-2 block text-sm font-medium text-slate-700" %>
-      <%= f.select :role, User.roles.keys.map { |role| [role.titleize, role] }, { prompt: "Choose a role" }, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
+      <%= f.select :role, [['Freelancer', 'freelancer'], ['Client', 'client']], { prompt: "Choose a role" }, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
     </div>
 
     <div>

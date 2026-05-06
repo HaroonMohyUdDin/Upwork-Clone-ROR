@@ -1,12 +1,11 @@
 class User < ApplicationRecord
-  # DEVISE MUST BE FIRST!
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
          :confirmable
 
-  # ENUM COMES AFTER DEVISE
-  enum :role, { freelancer: 0, client: 1 }
-  # ===== ASSOCIATIONS =====
+  # Role as STRING not INTEGER (since schema uses string)
+  # No enum - just use string directly
+  
   has_many :jobs, dependent: :destroy
   has_many :proposals, dependent: :destroy
   has_many :contracts_as_freelancer, class_name: 'Contract', foreign_key: 'freelancer_id', dependent: :destroy
@@ -19,17 +18,10 @@ class User < ApplicationRecord
   has_many :sent_conversations, class_name: 'Conversation', foreign_key: 'sender_id', dependent: :destroy
   has_many :received_conversations, class_name: 'Conversation', foreign_key: 'receiver_id', dependent: :destroy
 
-  # ===== VALIDATIONS =====
   validates :name, presence: true
   validates :email, presence: true, uniqueness: true
-  validates :role, presence: true, inclusion: { in: roles.keys, message: "%{value} is not a valid role" }
+  validates :role, presence: true, inclusion: { in: ['freelancer', 'client'], message: "%{value} is not a valid role" }
 
-  # ===== FREELANCER HELPERS =====
-  def skills_list
-    skills.to_s.split(/\r?\n|,/).map(&:strip).reject(&:blank?)
-  end
-
-  # ===== HELPER METHODS =====
   def freelancer?
     role == 'freelancer'
   end

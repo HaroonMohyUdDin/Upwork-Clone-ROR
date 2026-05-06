@@ -1,32 +1,54 @@
 class JobsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show]
-  before_action :set_job, only: [:show, :edit, :update, :destroy]
+  before_action :set_job, only: [:show, :edit, :update, :destroy, :close]
+  before_action :authorize_job_owner!, only: [:edit, :update, :destroy, :close]
 
+  # List all jobs (public view)
   def index
-    @jobs = Job.open_jobs.recent
-  end
+  @jobs = Job.open_jobs.recent
+  
+  # Apply filters
+  @jobs = @jobs.where(category: params[:category]) if params[:category].present?
+  @jobs = @jobs.where("budget >= ?", params[:min_budget]) if params[:min_budget].present?
+  @jobs = @jobs.where("budget <= ?", params[:max_budget]) if params[:max_budget].present?
+  
+  @jobs = @jobs.limit(12)
+end
 
+  # Show job details with proposals
   def show
-    @proposals = @job.proposals
+    @proposals = @job.proposals.includes(:user).order(created_at: :desc)
+    @proposal_count = @proposals.count
+    @accepted_proposal = @proposals.find_by(status: :accepted)
   end
 
+  # New job form (CLIENT ONLY)
   def new
-    @job = Job.new
+    authorize_client!
+    @job = current_user.jobs.build
   end
 
+  # Create new job (CLIENT ONLY)
   def create
+    authorize_client!
     @job = current_user.jobs.build(job_params)
+    
     if @job.save
-      redirect_to @job, notice: 'Job posted successfully'
+      redirect_to @job, notice: 'Job posted successfully! Wait for freelancers to submit proposals.'
     else
       render :new, status: :unprocessable_entity
     end
   end
 
+  # Edit job (CLIENT ONLY)
   def edit
+    authorize_client!
   end
 
+  # Update job (CLIENT ONLY)
   def update
+    authorize_client!
+    
     if @job.update(job_params)
       redirect_to @job, notice: 'Job updated successfully'
     else
@@ -34,9 +56,22 @@ class JobsController < ApplicationController
     end
   end
 
+  # Delete job (CLIENT ONLY)
   def destroy
+    authorize_client!
     @job.destroy
-    redirect_to jobs_url, notice: 'Job deleted successfully'
+    redirect_to client_dashboard_path, notice: 'Job deleted successfully'
+  end
+
+  # Close job (CLIENT ONLY)
+  def close
+    authorize_client!
+    
+    if @job.update(status: :closed)
+      redirect_to @job, notice: 'Job closed successfully'
+    else
+      redirect_to @job, alert: 'Error closing job'
+    end
   end
 
   private
@@ -45,7 +80,17 @@ class JobsController < ApplicationController
     @job = Job.find(params[:id])
   end
 
+ private
+
   def job_params
-    params.require(:job).permit(:title, :description, :budget, :category, :deadline)
+    params.require(:job).permit(:title, :description, :budget, :category, :deadline, :status)
+  end
+
+  def authorize_job_owner!
+    redirect_to root_path, alert: 'Not authorized' unless @job.user == current_user
+  end
+
+  def authorize_client!
+    redirect_to root_path, alert: 'Only clients can post jobs' unless current_user&.client?
   end
 end

@@ -9,12 +9,13 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   def build_resource(hash = {})
     super
-    # Set default role to 'client' if not provided
-    self.resource.role ||= :client
+    # Ensure role is set
+    if self.resource.role.blank?
+      self.resource.role = 'client'
+    end
   end
 
   def after_sign_up_path_for(resource)
-    # Redirect to the appropriate dashboard based on role
     resource.freelancer? ? freelancer_dashboard_path : client_dashboard_path
   end
 end

@@ -1,0 +1,61 @@
+<div class="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+  <h2 class="mb-6 text-2xl font-bold text-slate-900"><%= @job.new_record? ? "Post a New Job" : "Edit Job" %></h2>
+
+  <%= form_with(model: @job, local: true) do |form| %>
+    <% if @job.errors.any? %>
+      <div class="rounded-lg border border-red-200 bg-red-50 p-4 mb-6">
+        <h3 class="font-semibold text-red-900 mb-2"><%= pluralize(@job.errors.count, "error") %> prohibited this job:</h3>
+        <ul class="space-y-1 text-sm text-red-800">
+          <% @job.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="space-y-6">
+      <div>
+        <%= form.label :title, "Job Title", class: "form-label" %>
+        <%= form.text_field :title, placeholder: "e.g., Build a responsive website", class: "form-input" %>
+        <p class="mt-1 text-xs text-slate-500">Be clear and specific about what you need</p>
+      </div>
+
+      <div>
+        <%= form.label :description, "Job Description", class: "form-label" %>
+        <%= form.text_area :description, rows: 8, placeholder: "Describe your project in detail...", class: "form-input" %>
+        <p class="mt-1 text-xs text-slate-500">Include project scope, requirements, and expectations</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+          <%= form.label :category, "Category", class: "form-label" %>
+          <%= form.select :category, 
+            ["Web Development", "Mobile App", "Design", "Writing", "Marketing", "Data Entry", "Other"], 
+            { prompt: "Select a category" }, 
+            class: "form-input" %>
+        </div>
+
+        <div>
+          <%= form.label :budget, "Budget ($)", class: "form-label" %>
+          <%= form.number_field :budget, step: 0.01, placeholder: "1000", class: "form-input" %>
+        </div>
+      </div>
+
+      <div>
+        <%= form.label :deadline, "Deadline", class: "form-label" %>
+        <%= form.datetime_field :deadline, class: "form-input" %>
+      </div>
+       <div>
+  <%= form.label :status, "Job Status", class: "form-label" %>
+  <%= form.select :status, 
+    [['Open', 'open'], ['In Progress', 'in_progress'], ['Closed', 'closed']], 
+    {}, 
+    class: "form-input" %>
+</div>
+      <div class="flex gap-3 pt-6">
+        <%= form.submit @job.new_record? ? "Post Job" : "Update Job", class: "inline-flex rounded-full bg-emerald-600 px-8 py-3 font-medium text-white hover:bg-emerald-700" %>
+        <%= link_to "Cancel", client_dashboard_path, class: "inline-flex rounded-full border border-slate-300 px-8 py-3 font-medium text-slate-700 hover:bg-slate-50" %>
+      </div>
+    </div>
+  <% end %>
+</div>
