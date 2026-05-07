@@ -56,24 +56,24 @@ end
     end
   end
 
-  # Delete job (CLIENT ONLY)
-  def destroy
-    authorize_client!
-    @job.destroy
-    redirect_to client_dashboard_path, notice: 'Job deleted successfully'
+def close
+  authorize_job_owner!
+  
+  if @job.update(status: :closed)
+    redirect_to @job, notice: "Job closed successfully"
+  else
+    redirect_to @job, alert: "Error closing job"
   end
+end
 
-  # Close job (CLIENT ONLY)
-  def close
-    authorize_client!
-    
-    if @job.update(status: :closed)
-      redirect_to @job, notice: 'Job closed successfully'
-    else
-      redirect_to @job, alert: 'Error closing job'
-    end
-  end
-
+def destroy
+  authorize_job_owner!
+  
+  @job.destroy
+  redirect_to client_dashboard_path, notice: "Job deleted successfully"
+rescue StandardError => e
+  redirect_to @job, alert: "Unable to delete job: #{e.message}"
+end
   private
 
   def set_job

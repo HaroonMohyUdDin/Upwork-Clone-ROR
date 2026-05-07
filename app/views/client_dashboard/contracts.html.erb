@@ -1,0 +1,59 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-3xl font-bold text-slate-900">My Contracts</h1>
+  </div>
+
+  <!-- Active Contracts -->
+  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="mb-4 text-xl font-semibold text-slate-900">Active Contracts</h2>
+
+    <% if @contracts.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold text-slate-600">Freelancer</th>
+              <th class="px-4 py-3 text-left font-semibold text-slate-600">Job</th>
+              <th class="px-4 py-3 text-left font-semibold text-slate-600">Status</th>
+              <th class="px-4 py-3 text-left font-semibold text-slate-600">Start Date</th>
+              <th class="px-4 py-3 text-left font-semibold text-slate-600">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <% @contracts.each do |contract| %>
+              <tr class="hover:bg-slate-50 transition">
+                <td class="px-4 py-3 font-medium text-slate-900">
+                  <%= link_to contract.freelancer.name, user_path(contract.freelancer), class: "text-emerald-600 hover:text-emerald-700" %>
+                </td>
+                <td class="px-4 py-3 text-slate-700">
+                  <%= link_to contract.job.title, job_path(contract.job), class: "text-slate-900 hover:text-emerald-700 font-medium" %>
+                </td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+                    <%= (contract.status || 'active').titleize %>
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-slate-600">
+                  <%= contract.start_date&.strftime("%b %d, %Y") || "—" %>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex flex-wrap gap-2">
+                    <%= link_to "View", contract_path(contract), class: "rounded-md bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-800 hover:bg-blue-200" %>
+                    <% if contract.status == 'active' %>
+                      <%= button_to "Complete", complete_contract_path(contract), method: :patch, class: "rounded-md bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-800 hover:bg-green-200" %>
+                      <%= button_to "Cancel", cancel_contract_path(contract), method: :patch, class: "rounded-md bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 hover:bg-red-200" %>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-slate-600">
+        <p>No active contracts at the moment.</p>
+      </div>
+    <% end %>
+  </div>
+</div>

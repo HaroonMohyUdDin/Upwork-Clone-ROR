@@ -1,97 +1,237 @@
-<div class="space-y-6">
-  <article class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-    <div class="mb-6">
+<div class="space-y-8">
+  <!-- Job Header -->
+  <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div>
       <h1 class="text-3xl font-bold text-slate-900"><%= @job.title %></h1>
+      <p class="mt-2 text-sm text-slate-600">Posted by <%= link_to @job.user.name, user_path(@job.user), class: "font-semibold text-emerald-600 hover:text-emerald-700" %></p>
     </div>
 
-    <dl class="grid grid-cols-1 gap-4 md:grid-cols-2">
-      <div>
-        <dt class="text-sm font-semibold text-slate-700">Description</dt>
-        <dd class="mt-1 text-slate-600"><%= @job.description %></dd>
-      </div>
-      <div>
-        <dt class="text-sm font-semibold text-slate-700">Budget</dt>
-        <dd class="mt-1 text-lg font-semibold text-emerald-600">$<%= @job.budget %></dd>
-      </div>
-      <div>
-        <dt class="text-sm font-semibold text-slate-700">Category</dt>
-        <dd class="mt-1 text-slate-600"><%= @job.category %></dd>
-      </div>
-      <div>
-        <dt class="text-sm font-semibold text-slate-700">Status</dt>
-        <dd class="mt-1"><span class="inline-block rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-800"><%= @job.status %></span></dd>
-      </div>
-      <div>
-        <dt class="text-sm font-semibold text-slate-700">Posted by</dt>
-        <dd class="mt-1"><%= link_to @job.user.name, user_path(@job.user), class: "text-emerald-600 hover:text-emerald-700" %></dd>
-      </div>
-      <div>
-        <dt class="text-sm font-semibold text-slate-700">Posted on</dt>
-        <dd class="mt-1 text-slate-600"><%= @job.created_at.strftime("%B %d, %Y") %></dd>
-      </div>
-    </dl>
-  </article>
-
-  <% if user_signed_in? && current_user.freelancer? && current_user != @job.user %>
-    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 class="mb-4 text-xl font-semibold text-slate-900">Submit a Proposal</h3>
-      <%= form_with(model: [@job, @job.proposals.build], local: true, class: "space-y-4") do |form| %>
-        <div>
-          <%= form.label :cover_letter, class: "mb-2 block text-sm font-medium text-slate-700" %>
-          <%= form.text_area :cover_letter, rows: 5, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
-        </div>
-        <div>
-          <%= form.submit "Submit Proposal", class: "rounded-full bg-green-600 px-5 py-2 font-semibold text-white hover:bg-green-700" %>
-        </div>
-      <% end %>
+    <div class="flex flex-wrap gap-2">
+      <% status_color = case @job.status
+        when 'open' then 'bg-green-100 text-green-800'
+        when 'in_progress' then 'bg-blue-100 text-blue-800'
+        else 'bg-gray-100 text-gray-800'
+      end %>
+      <span class="inline-flex rounded-full px-4 py-2 text-sm font-bold <%= status_color %>">
+        <%= (@job.status || 'open').titleize %>
+      </span>
     </div>
-  <% end %>
+  </div>
 
+  <!-- Job Details Grid -->
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h5 class="text-sm font-medium text-slate-500">Budget</h5>
+      <h2 class="mt-2 text-3xl font-bold text-emerald-600">$<%= @job.budget %></h2>
+    </div>
+
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h5 class="text-sm font-medium text-slate-500">Category</h5>
+      <h2 class="mt-2 text-lg font-bold text-slate-900"><%= @job.category %></h2>
+    </div>
+
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h5 class="text-sm font-medium text-slate-500">Proposals</h5>
+      <h2 class="mt-2 text-3xl font-bold text-blue-600"><%= @proposals.count %></h2>
+    </div>
+  </div>
+
+  <!-- Job Description -->
   <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-    <div class="mb-4 flex items-center justify-between">
-      <h3 class="text-xl font-semibold text-slate-900">Proposals (<%= @proposals.count %>)</h3>
-      <% if user_signed_in? && current_user == @job.user %>
-       <%= link_to "View All", job_path(@job), class: "rounded-md bg-sky-100 px-3 py-2 text-xs font-semibold text-sky-800 hover:bg-sky-200" %>
+    <h2 class="mb-4 text-xl font-semibold text-slate-900">Description</h2>
+    <div class="prose prose-sm max-w-none text-slate-700">
+      <p><%= simple_format(@job.description) %></p>
+    </div>
+  </div>
+
+  <!-- Apply Section (Conditional based on user role and job status) -->
+  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="mb-4 text-xl font-semibold text-slate-900">Apply for this Job</h2>
+
+    <% if !user_signed_in? %>
+      <!-- Not logged in -->
+      <div class="rounded-lg border border-amber-200 bg-amber-50 p-4">
+        <p class="text-amber-800">
+          <%= link_to "Sign in", new_user_session_path, class: "font-semibold text-amber-900 hover:text-amber-700" %> as a freelancer to submit a proposal.
+        </p>
+      </div>
+
+    <% elsif !current_user.freelancer? %>
+      <!-- Logged in but not a freelancer -->
+      <div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
+        <p class="text-blue-800">Only freelancers can apply for jobs.</p>
+      </div>
+
+    <% elsif current_user == @job.user %>
+      <!-- Freelancer trying to apply for own job -->
+      <div class="rounded-lg border border-red-200 bg-red-50 p-4">
+        <p class="text-red-800">You cannot apply for your own job.</p>
+      </div>
+
+    <% elsif @job.status != 'open' %>
+      <!-- Job is not open -->
+      <div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+        <p class="text-yellow-800">This job is no longer accepting proposals.</p>
+      </div>
+
+    <% else %>
+      <!-- Check if freelancer already submitted a proposal -->
+      <% existing_proposal = @job.proposals.find_by(user_id: current_user.id) %>
+
+      <% if existing_proposal.present? %>
+        <!-- Freelancer already applied - show existing proposal status -->
+        <div class="space-y-4">
+          <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-slate-900">Your Proposal</h3>
+              <% status_badge_color = case existing_proposal.status
+                when 'pending' then 'bg-amber-100 text-amber-800'
+                when 'accepted' then 'bg-green-100 text-green-800'
+                when 'rejected' then 'bg-red-100 text-red-800'
+                else 'bg-slate-100 text-slate-800'
+              end %>
+              <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold <%= status_badge_color %>">
+                <%= (existing_proposal.status || 'pending').titleize %>
+              </span>
+            </div>
+
+            <div class="mt-4 space-y-3">
+              <div>
+                <p class="text-sm font-medium text-slate-600">Your Cover Letter:</p>
+                <p class="mt-1 text-slate-800"><%= existing_proposal.cover_letter %></p>
+              </div>
+
+              <div>
+                <p class="text-sm font-medium text-slate-600">Submitted:</p>
+                <p class="mt-1 text-slate-800"><%= existing_proposal.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+              </div>
+
+              <% if existing_proposal.status == 'accepted' && existing_proposal.contract.present? %>
+                <div class="rounded-lg border border-green-200 bg-green-50 p-3">
+                  <p class="text-sm font-semibold text-green-800">
+                    🎉 Proposal accepted! Contract has been created.
+                  </p>
+                  <p class="mt-2">
+                    <%= link_to "View Contract", contract_path(existing_proposal.contract), 
+                        class: "text-emerald-700 hover:text-emerald-800 font-semibold" %>
+                  </p>
+                </div>
+              <% elsif existing_proposal.status == 'rejected' %>
+                <div class="rounded-lg border border-red-200 bg-red-50 p-3">
+                  <p class="text-sm font-semibold text-red-800">
+                    ❌ This proposal was rejected.
+                  </p>
+                  <p class="mt-2 text-sm text-red-700">You cannot apply again for this job.</p>
+                </div>
+              <% elsif existing_proposal.status == 'pending' %>
+                <div class="rounded-lg border border-blue-200 bg-blue-50 p-3">
+                  <p class="text-sm font-semibold text-blue-800">
+                    ⏳ Your proposal is pending review.
+                  </p>
+                  <p class="mt-2 text-sm text-blue-700">The client will respond soon.</p>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+      <% else %>
+        <!-- Freelancer hasn't applied yet - show proposal form -->
+        <div class="space-y-4">
+          <%= form_with(model: [@job, Proposal.new], local: true, class: "space-y-4") do |f| %>
+            <div>
+              <%= f.label :cover_letter, "Your Cover Letter", class: "mb-2 block text-sm font-medium text-slate-700" %>
+              <p class="mb-3 text-xs text-slate-500">Tell the client why you're the perfect fit for this job.</p>
+              <%= f.text_area :cover_letter, rows: 6, placeholder: "Explain your experience, skills, and why you'd be great for this project...",
+                  class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
+            </div>
+
+            <div>
+              <%= f.submit "Submit Proposal", class: "rounded-full bg-green-600 px-6 py-3 font-semibold text-white hover:bg-green-700 transition" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- Proposals List (Only for job owner) -->
+  <% if user_signed_in? && current_user == @job.user %>
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Proposals Received</h2>
+          <p class="mt-1 text-sm text-slate-600">Manage proposals from freelancers.</p>
+        </div>
+        <span class="inline-flex items-center justify-center rounded-full bg-blue-100 px-4 py-2 text-sm font-bold text-blue-800"><%= @proposals.count %></span>
+      </div>
+
+      <% if @proposals.any? %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="px-4 py-3 text-left font-semibold text-slate-600">Freelancer</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-600">Status</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-600">Cover Letter</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-600">Submitted</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-600">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <% @proposals.each do |proposal| %>
+                <tr class="hover:bg-slate-50 transition">
+                  <td class="px-4 py-3 font-medium text-slate-900">
+                    <%= link_to proposal.user.name, user_path(proposal.user), class: "text-emerald-600 hover:text-emerald-700 font-semibold" %>
+                  </td>
+                  <td class="px-4 py-3">
+                    <% status_color = case proposal.status
+                      when 'pending' then 'bg-amber-100 text-amber-800'
+                      when 'accepted' then 'bg-green-100 text-green-800'
+                      when 'rejected' then 'bg-red-100 text-red-800'
+                      else 'bg-slate-100 text-slate-800'
+                    end %>
+                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold <%= status_color %>">
+                      <%= (proposal.status || 'pending').titleize %>
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-slate-600">
+                    <span class="line-clamp-2"><%= proposal.cover_letter.truncate(100) %></span>
+                  </td>
+                  <td class="px-4 py-3 whitespace-nowrap text-slate-600">
+                    <%= proposal.created_at.strftime("%b %d, %Y") %>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex flex-wrap gap-2">
+                      <% if proposal.status == 'pending' %>
+                        <%= button_to "Accept", accept_job_proposal_path(@job, proposal), method: :patch, class: "rounded-md bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-800 hover:bg-green-200" %>
+                        <%= button_to "Reject", reject_job_proposal_path(@job, proposal), method: :patch, class: "rounded-md bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 hover:bg-red-200" %>
+                      <% end %>
+                      <%= link_to "Message", message_freelancer_job_proposal_path(@job, proposal), method: :post, class: "rounded-md bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-800 hover:bg-blue-200" %>
+                      <% if proposal.status == 'accepted' && proposal.contract.present? %>
+                        <%= link_to "View Contract", contract_path(proposal.contract), class: "rounded-md bg-purple-100 px-3 py-1.5 text-xs font-semibold text-purple-800 hover:bg-purple-200" %>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-slate-600">
+          <p>No proposals received yet. Keep an eye on your job!</p>
+        </div>
       <% end %>
     </div>
 
-    <% if @proposals.any? %>
-      <div class="space-y-3">
-        <% @proposals.each do |proposal| %>
-          <div class="rounded-lg border border-slate-200 p-4">
-            <div class="mb-3 flex items-start justify-between">
-              <div>
-                <h6 class="font-semibold text-slate-900"><%= link_to proposal.user.name, user_path(proposal.user), class: "text-emerald-600 hover:text-emerald-700" %></h6>
-                <p class="mt-1 text-xs text-slate-500"><%= proposal.created_at.strftime("%B %d, %Y") %></p>
-              </div>
-              <span class="text-xs font-semibold text-slate-600"><%= proposal.status %></span>
-            </div>
-            <p class="mb-3 text-sm text-slate-700"><%= proposal.cover_letter %></p>
-                  <div class="flex flex-wrap gap-2">
-  <% if user_signed_in? && current_user == @job.user %>
-    <%= button_to "Accept", accept_job_proposal_path(@job, proposal), method: :patch, class: "rounded-md bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-800 hover:bg-green-200" %>
-    <%= button_to "Reject", reject_job_proposal_path(@job, proposal), method: :patch, class: "rounded-md bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 hover:bg-red-200" %>
+    <!-- Job Actions (Client only) -->
+    <div class="space-y-4">
+      <% if @job.status == 'open' %>
+        <%= link_to "Close Job", close_job_path(@job), method: :patch, class: "inline-flex rounded-full bg-yellow-600 px-6 py-3 font-semibold text-white hover:bg-yellow-700" %>
+      <% end %>
+      <%= link_to "Edit Job", edit_job_path(@job), class: "inline-flex rounded-full bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700" %>
+      <%= link_to "Delete Job", job_path(@job), method: :delete, data: { confirm: "Are you sure?" }, class: "inline-flex rounded-full bg-red-600 px-6 py-3 font-semibold text-white hover:bg-red-700" %>
+    </div>
   <% end %>
-  <% if user_signed_in? && current_user != proposal.user %>
-    <%= link_to "Message", conversations_path(receiver_id: proposal.user.id), method: :post, class: "rounded-md bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-200" %>
-  <% end %>
-</div>
-          </div>
-        <% end %>
-      </div>
-    <% else %>
-      <p class="text-slate-600">No proposals yet.</p>
-    <% end %>
-  </div>
-
-    <% if user_signed_in? && current_user == @job.user %>
-  <div class="flex flex-wrap gap-3">
-    <%= link_to "Edit", edit_job_path(@job), class: "rounded-full bg-slate-600 px-5 py-2 font-semibold text-white hover:bg-slate-700" %>
-    <% if @job.status == 'open' %>
-      <%= link_to "Close Job", close_job_path(@job), method: :patch, class: "rounded-full bg-red-600 px-5 py-2 font-semibold text-white hover:bg-red-700" %>
-    <% end %>
-    <%= link_to "Delete", job_path(@job), method: :delete, data: { confirm: "Are you sure?" }, class: "rounded-full bg-red-600 px-5 py-2 font-semibold text-white hover:bg-red-700" %>
-  </div>
-<% end %>
-  <%= link_to "Back to Jobs", jobs_path, class: "inline-flex rounded-full border border-slate-300 px-5 py-2 font-semibold text-slate-700 hover:bg-slate-100" %>
 </div>

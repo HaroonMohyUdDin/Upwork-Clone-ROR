@@ -3,32 +3,37 @@ class FreelancerDashboardController < ApplicationController
   before_action :authorize_freelancer!
 
   def index
-    @freelancer = current_user
+  @freelancer = current_user
 
-    @skills = @freelancer.skills || []
-    @contracts = @freelancer.contracts_as_freelancer
-      .where(status: :active)
-      .includes(:job, :client)
-      .order(created_at: :desc)
+  @skills = @freelancer.skills || []
+  
+  @contracts = @freelancer.contracts_as_freelancer
+    .includes(:job, :client)
+    .order(created_at: :desc)
 
-    @proposals = @freelancer.proposals
-      .includes(:job, :contract)
-      .order(created_at: :desc)
+  # Group contracts by status for tiles
+  @active_contracts = @contracts.where(status: :active)
+  @completed_contracts = @contracts.where(status: :completed)
+  @cancelled_contracts = @contracts.where(status: :cancelled)
 
-    @reviews = @freelancer.reviews_as_reviewee
-      .includes(:reviewer)
-      .order(created_at: :desc)
-      .limit(5)
+  @proposals = @freelancer.proposals
+    .includes(:job, :contract)
+    .order(created_at: :desc)
 
-    @total_earned = @freelancer.payments.completed_payments.sum(:amount)
-    @proposals_count = @freelancer.proposals.count
-    @pending_proposals_count = @freelancer.proposals.where(status: :pending).count
-    @accepted_proposals_count = @freelancer.proposals.where(status: :accepted).count
-    @rejected_proposals_count = @freelancer.proposals.where(status: :rejected).count
-    @all_contracts_count = @freelancer.contracts_as_freelancer.count
-    @unread_messages_count = @freelancer.received_messages.where(read: false).count
-    @total_reviews = @freelancer.reviews_as_reviewee.count
-  end
+  @reviews = @freelancer.reviews_as_reviewee
+    .includes(:reviewer)
+    .order(created_at: :desc)
+    .limit(5)
+
+  @total_earned = @freelancer.payments.completed_payments.sum(:amount)
+  @proposals_count = @freelancer.proposals.count
+  @pending_proposals_count = @freelancer.proposals.where(status: :pending).count
+  @accepted_proposals_count = @freelancer.proposals.where(status: :accepted).count
+  @rejected_proposals_count = @freelancer.proposals.where(status: :rejected).count
+  @all_contracts_count = @freelancer.contracts_as_freelancer.count
+  @unread_messages_count = @freelancer.received_messages.where(read: false).count
+  @total_reviews = @freelancer.reviews_as_reviewee.count
+end
 
   def edit_profile
     @freelancer = current_user

@@ -6,17 +6,28 @@ class ClientDashboardController < ApplicationController
     @client = current_user
 
     @jobs = @client.jobs.includes(:proposals).order(created_at: :desc)
-    @active_jobs = @client.jobs.where(status: :in_progress)
-    @completed_jobs = @client.jobs.where(status: :closed)
+    @active_jobs = @client.jobs.where(status: 'in_progress')
+    @completed_jobs = @client.jobs.where(status: 'closed')
 
     @pending_proposals = Proposal
       .joins(:job)
-      .where(jobs: { user_id: @client.id }, proposals: { status: :pending })
+      .where(jobs: { user_id: @client.id }, proposals: { status: 'pending' })
       .includes(:job, :user)
       .order(created_at: :desc)
 
+    # Contract status tiles
     @active_contracts = Contract
-      .where(client_id: @client.id, status: :active)
+      .where(client_id: @client.id, status: 'active')
+      .includes(:freelancer, :job)
+      .order(created_at: :desc)
+
+    @completed_contracts = Contract
+      .where(client_id: @client.id, status: 'completed')
+      .includes(:freelancer, :job)
+      .order(created_at: :desc)
+
+    @cancelled_contracts = Contract
+      .where(client_id: @client.id, status: 'cancelled')
       .includes(:freelancer, :job)
       .order(created_at: :desc)
 
@@ -32,7 +43,7 @@ class ClientDashboardController < ApplicationController
   end
 
   def contracts
-    @contracts = Contract.where(client_id: current_user.id, status: :active)
+    @contracts = Contract.where(client_id: current_user.id, status: 'active')
       .includes(:freelancer, :job)
       .order(created_at: :desc)
   end
@@ -41,11 +52,11 @@ class ClientDashboardController < ApplicationController
     @payments = current_user.payments.order(created_at: :desc)
   end
 
-    def freelancers
-  @freelancers = User.where(role: 'freelancer')
-    .includes(:skills, :reviews_as_reviewee)
-    .order(created_at: :desc)
-end
+  def freelancers
+    @freelancers = User.where(role: 'freelancer')
+      .includes(:skills, :reviews_as_reviewee)
+      .order(created_at: :desc)
+  end
 
   private
 

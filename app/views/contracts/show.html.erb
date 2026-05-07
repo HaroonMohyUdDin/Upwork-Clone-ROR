@@ -1,51 +1,132 @@
-<div class="space-y-6">
-  <h2 class="text-2xl font-bold text-slate-900">Contract Details</h2>
-
-  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-    <dl class="space-y-4">
-      <div>
-        <dt class="text-sm font-semibold text-slate-700">Job</dt>
-        <dd class="mt-1 text-slate-600"><%= link_to @contract.job.title, job_path(@contract.job), class: "text-emerald-600 hover:text-emerald-700" %></dd>
-      </div>
-      <div>
-        <dt class="text-sm font-semibold text-slate-700">Freelancer</dt>
-        <dd class="mt-1 text-slate-600"><%= link_to @contract.freelancer.name, user_path(@contract.freelancer), class: "text-emerald-600 hover:text-emerald-700" %></dd>
-      </div>
-      <div>
-        <dt class="text-sm font-semibold text-slate-700">Client</dt>
-        <dd class="mt-1 text-slate-600"><%= link_to @contract.client.name, user_path(@contract.client), class: "text-emerald-600 hover:text-emerald-700" %></dd>
-      </div>
-      <div>
-        <dt class="text-sm font-semibold text-slate-700">Status</dt>
-        <dd class="mt-1"><span class="inline-block rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-800"><%= (@contract.status || 'active').capitalize %></span></dd>
-      </div>
-      <% if @contract.end_date.present? %>
-        <div>
-          <dt class="text-sm font-semibold text-slate-700">End Date</dt>
-          <dd class="mt-1 text-slate-600"><%= @contract.end_date.strftime('%B %d, %Y') %></dd>
-        </div>
-      <% end %>
-    </dl>
+<div class="space-y-8">
+  <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-900">Contract Details</h1>
+      <p class="mt-2 text-sm text-slate-600">Review and manage this contract</p>
+    </div>
+    <%= link_to "← Back to Contracts", contracts_path, class: "text-emerald-600 hover:text-emerald-700 font-semibold" %>
   </div>
 
-  <% if current_user.id == @contract.client_id %>
-    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 class="mb-4 text-lg font-semibold text-slate-900">Update Contract</h3>
-      <%= form_with(model: @contract, local: true, class: "space-y-4") do |f| %>
-        <div>
-          <%= f.label :status, class: "mb-2 block text-sm font-medium text-slate-700" %>
-          <%= f.select :status, Contract.statuses.keys.map { |s| [s.titleize, s] }, {}, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
-        </div>
-        <div>
-          <%= f.label :end_date, class: "mb-2 block text-sm font-medium text-slate-700" %>
-          <%= f.date_field :end_date, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
-        </div>
-        <div>
-          <%= f.submit "Update Contract", class: "rounded-full bg-emerald-600 px-5 py-2 font-semibold text-white hover:bg-emerald-700" %>
-        </div>
-      <% end %>
-    </div>
-  <% end %>
+  <!-- Contract Header Card -->
+  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div>
+        <h3 class="text-sm font-medium text-slate-500">Job Title</h3>
+        <p class="mt-2 text-lg font-semibold text-slate-900"><%= @contract.job.title %></p>
+      </div>
 
-  <%= link_to "Back to Jobs", jobs_path, class: "inline-flex rounded-full border border-slate-300 px-5 py-2 font-semibold text-slate-700 hover:bg-slate-100" %>
+      <div>
+        <h3 class="text-sm font-medium text-slate-500">Freelancer</h3>
+        <p class="mt-2 text-lg font-semibold text-slate-900">
+          <%= link_to @contract.freelancer.name, user_path(@contract.freelancer), class: "text-emerald-600 hover:text-emerald-700" %>
+        </p>
+        <p class="mt-1 text-xs text-slate-500">Email: <%= @contract.freelancer.email %></p>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-medium text-slate-500">Client</h3>
+        <p class="mt-2 text-lg font-semibold text-slate-900"><%= @contract.client.name %></p>
+        <p class="mt-1 text-xs text-slate-500">Email: <%= @contract.client.email %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contract Status & Details -->
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="mb-4 text-xl font-semibold text-slate-900">Contract Information</h2>
+
+      <div class="space-y-4">
+        <div>
+          <h3 class="text-sm font-medium text-slate-500">Status</h3>
+          <% status_color = case @contract.status
+            when 'active' then 'bg-green-100 text-green-800'
+            when 'completed' then 'bg-blue-100 text-blue-800'
+            when 'cancelled' then 'bg-red-100 text-red-800'
+            end %>
+          <span class="mt-2 inline-flex rounded-full px-4 py-2 text-sm font-bold <%= status_color %>">
+           <%= (@contract.status || 'active').titleize %>
+          </span>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-medium text-slate-500">Contract Created</h3>
+          <p class="mt-1 text-slate-900"><%= @contract.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-medium text-slate-500">Budget</h3>
+          <p class="mt-1 text-2xl font-bold text-emerald-600">$<%= @contract.job.budget %></p>
+        </div>
+
+        <div>
+          <h3 class="text-sm font-medium text-slate-500">Related Proposal</h3>
+          <p class="mt-1">
+            <%= link_to "View Job", job_path(@contract.job), class: "text-emerald-600 hover:text-emerald-700 font-semibold" %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Update Form (Only for Client) -->
+    <% if current_user == @contract.client %>
+      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="mb-4 text-xl font-semibold text-slate-900">Update Contract Status</h2>
+
+        <%= form_with(model: @contract, local: true, class: "space-y-4") do |f| %>
+          <div>
+            <%= f.label :status, "New Status", class: "mb-2 block text-sm font-medium text-slate-700" %>
+            <%= f.select :status, 
+                Contract.statuses.keys.map { |s| [s.titleize, s] }, 
+                { selected: @contract.status }, 
+                class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
+            <p class="mt-2 text-xs text-slate-500">
+              <strong>Active:</strong> Work is ongoing | 
+              <strong>Completed:</strong> Work is finished | 
+              <strong>Cancelled:</strong> Contract is terminated
+            </p>
+          </div>
+
+          <div class="flex gap-3">
+            <%= f.submit "Update Status", class: "rounded-full bg-emerald-600 px-5 py-2 font-semibold text-white hover:bg-emerald-700" %>
+            <% if @contract.active? %>
+              <%= link_to "Complete", complete_contract_path(@contract), method: :patch, class: "rounded-full bg-blue-600 px-5 py-2 font-semibold text-white hover:bg-blue-700" %>
+              <%= link_to "Cancel", cancel_contract_path(@contract), method: :patch, data: { confirm: "Are you sure?" }, class: "rounded-full bg-red-600 px-5 py-2 font-semibold text-white hover:bg-red-700" %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="mb-4 text-xl font-semibold text-slate-900">Contract Status</h2>
+        <% status_color = case @contract.status
+          when 'active' then 'bg-green-100 text-green-800'
+          when 'completed' then 'bg-blue-100 text-blue-800'
+          when 'cancelled' then 'bg-red-100 text-red-800'
+          end %>
+        <span class="inline-flex rounded-full px-4 py-2 text-sm font-bold <%= status_color %>">
+         <%= (@contract.status || 'active').titleize %>
+        </span>
+        <p class="mt-4 text-sm text-slate-600">
+          Only the client can update this contract's status.
+        </p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Job Description -->
+  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="mb-4 text-xl font-semibold text-slate-900">Job Description</h2>
+    <div class="prose prose-sm max-w-none text-slate-700">
+      <p><%= simple_format(@contract.job.description) %></p>
+    </div>
+  </div>
+
+  <!-- Messages Link -->
+  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="mb-4 text-xl font-semibold text-slate-900">Communication</h2>
+    <p class="mb-4 text-slate-600">Message the other party about this contract.</p>
+    <% other_user = current_user == @contract.client ? @contract.freelancer : @contract.client %>
+    <%= link_to "Start Conversation", conversations_path(receiver_id: other_user.id), method: :post, class: "inline-flex rounded-full bg-blue-600 px-5 py-2 font-semibold text-white hover:bg-blue-700" %>
+  </div>
 </div>

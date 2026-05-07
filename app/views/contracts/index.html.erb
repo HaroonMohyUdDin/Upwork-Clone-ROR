@@ -44,7 +44,9 @@
                   <div class="flex flex-wrap gap-2">
                     <%= link_to "View", contract_path(contract), class: "rounded-md bg-sky-100 px-3 py-1.5 text-xs font-semibold text-sky-800 hover:bg-sky-200" %>
                     <% if current_user.id == contract.client_id %>
-                      <%= link_to "Edit", edit_contract_path(contract), class: "rounded-md bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-800 hover:bg-amber-200" %>
+                    <% if contract.status == 'active' %>
+  <%= button_to "Complete", complete_contract_path(contract), method: :patch, class: "rounded-md bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-800 hover:bg-green-200" %>
+<% end %>
                     <% end %>
                   </div>
                 </td>

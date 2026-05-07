@@ -113,10 +113,10 @@
 
     <section class="space-y-6 lg:col-span-2">
       <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-  <h3 class="mb-4 text-lg font-semibold text-slate-900">Received Proposals</h3>
-  <p class="text-sm text-slate-600">Monitor all proposals you've submitted to jobs.</p>
-</div>
+        <div class="mb-4 border-b border-slate-200 pb-4">
+          <h3 class="text-lg font-semibold text-slate-900">Submitted Proposals</h3>
+          <p class="text-sm text-slate-600">Monitor all proposals you've submitted to jobs.</p>
+        </div>
 
         <% if @proposals.any? %>
           <div class="overflow-x-auto">
@@ -144,19 +144,18 @@
                         else "bg-slate-100 text-slate-800"
                         end %>
 
-                        <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold <%= status_class %>">
-  <%= (proposal.status || 'pending').titleize %>
-</span>
+                      <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold <%= status_class %>">
+                        <%= (proposal.status || "pending").titleize %>
+                      </span>
                     </td>
                     <td class="px-4 py-3 text-slate-600"><%= proposal.created_at.strftime("%B %d, %Y") %></td>
-                                <td class="px-4 py-3">
-  <div class="flex flex-wrap gap-2">
-    <% if proposal.status == 'accepted' && proposal.contract.present? %>
-      <%= link_to "Contract", contract_path(proposal.contract), class: "rounded-md bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-200" %>
-    <% end %>
-    <%= link_to "Job", job_path(proposal.job), class: "rounded-md bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-800 hover:bg-blue-200" %>
-  </div>
-</td>
+                    <td class="px-4 py-3">
+                      <div class="flex flex-wrap gap-2">
+                        <% if proposal.status == "accepted" && proposal.contract.present? %>
+                          <%= link_to "Contract", contract_path(proposal.contract), class: "rounded-md bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-200" %>
+                        <% end %>
+                        <%= link_to "Job", job_path(proposal.job), class: "rounded-md bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-800 hover:bg-blue-200" %>
+                      </div>
                     </td>
                   </tr>
                 <% end %>
@@ -170,29 +169,33 @@
         <% end %>
       </div>
 
-      <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <!-- Skills Section -->
+      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <div class="mb-4 flex items-center justify-between">
-          <h4 class="text-lg font-semibold text-slate-900">Skills</h4>
-          <%= link_to "Add Skill", edit_freelancer_profile_path, class: "text-sm font-medium text-emerald-700 hover:text-emerald-800" %>
+          <h3 class="text-lg font-semibold text-slate-900">Skills</h3>
+          <button type="button" class="font-medium text-emerald-600 hover:text-emerald-700" onclick="document.getElementById('addSkillModal').showModal()">
+            Add Skill
+          </button>
         </div>
 
         <% if @skills.any? %>
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <% @skills.each do |skill| %>
-              <div class="rounded-lg border border-slate-200 p-4">
-                <h6 class="font-medium text-slate-900"><%= skill.name %></h6>
-                <p class="mt-1 text-sm text-slate-500"><%= skill.proficiency.capitalize %></p>
-                <div class="mt-3 flex gap-3">
-                  <%= link_to "Edit", edit_skill_path(skill), class: "text-sm font-medium text-amber-700 hover:text-amber-800" %>
-                  <%= link_to "Delete", skill_path(skill), method: :delete, data: { confirm: "Sure?" }, class: "text-sm font-medium text-red-700 hover:text-red-800" %>
+              <div class="rounded-lg border border-slate-200 p-3 transition hover:shadow-md">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <h6 class="font-semibold text-slate-900"><%= skill.name %></h6>
+                    <p class="mt-1 text-xs text-slate-600"><%= skill.proficiency&.titleize || "Not set" %></p>
+                  </div>
+                  <%= link_to "×", skill_path(skill), method: :delete, data: { confirm: "Delete this skill?" }, class: "text-lg font-bold text-red-500 hover:text-red-700" %>
                 </div>
               </div>
             <% end %>
           </div>
         <% else %>
-          <p class="text-sm text-slate-500">
+          <p class="mb-4 text-slate-600">
             No skills added yet.
-            <%= link_to "Add your first skill", edit_freelancer_profile_path, class: "font-medium text-emerald-700 hover:text-emerald-800" %>
+            <%= link_to "Add your first skill", "#", onclick: "document.getElementById('addSkillModal').showModal(); return false;", class: "font-semibold text-emerald-600 hover:text-emerald-700" %>
           </p>
         <% end %>
       </div>
@@ -221,3 +224,32 @@
     </section>
   </div>
 </div>
+
+<!-- Add Skill Modal -->
+<dialog id="addSkillModal" class="w-full max-w-md rounded-lg shadow-lg backdrop:bg-black/50">
+  <div class="p-6">
+    <h2 class="mb-4 text-xl font-bold text-slate-900">Add Skill</h2>
+
+    <%= form_with(model: Skill.new, local: true, class: "space-y-4") do |form| %>
+      <div>
+        <%= form.label :name, "Skill Name", class: "mb-2 block text-sm font-medium text-slate-700" %>
+        <%= form.text_field :name, placeholder: "e.g., Ruby on Rails", class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
+      </div>
+
+      <div>
+        <%= form.label :proficiency, "Proficiency Level", class: "mb-2 block text-sm font-medium text-slate-700" %>
+        <%= form.select :proficiency,
+          [["Beginner", "beginner"], ["Intermediate", "intermediate"], ["Advanced", "advanced"], ["Expert", "expert"]],
+          { prompt: "Select proficiency" },
+          class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
+      </div>
+
+      <div class="flex gap-3 pt-4">
+        <%= form.submit "Add Skill", class: "flex-1 rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white transition hover:bg-emerald-700" %>
+        <button type="button" onclick="document.getElementById('addSkillModal').close()" class="flex-1 rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-700 transition hover:bg-slate-50">
+          Cancel
+        </button>
+      </div>
+    <% end %>
+  </div>
+</dialog>
