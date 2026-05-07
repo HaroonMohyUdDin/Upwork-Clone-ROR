@@ -17,7 +17,7 @@
       </div>
       <div>
         <dt class="text-sm font-semibold text-slate-700">Status</dt>
-        <dd class="mt-1"><span class="inline-block rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-800"><%= @contract.status.capitalize %></span></dd>
+        <dd class="mt-1"><span class="inline-block rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-800"><%= (@contract.status || 'active').capitalize %></span></dd>
       </div>
       <% if @contract.end_date.present? %>
         <div>

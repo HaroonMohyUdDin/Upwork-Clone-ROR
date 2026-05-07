@@ -4,20 +4,31 @@ class FreelancerDashboardController < ApplicationController
 
   def index
     @freelancer = current_user
-    @skills = @freelancer.skills || []
-    @contracts = @freelancer.contracts_as_freelancer.where(status: 'active')
-    @reviews = @freelancer.reviews_as_reviewee.limit(5)
-    
-      # Additional dashboard data
-      @total_earned = @freelancer.payments.completed_payments.sum(:amount)
-      @proposals_count = @freelancer.proposals.count
-      @pending_proposals_count = @freelancer.proposals.where(status: :pending).count
-      @accepted_proposals_count = @freelancer.proposals.where(status: :accepted).count
-      @all_contracts_count = @freelancer.contracts_as_freelancer.count
-      @unread_messages_count = @freelancer.received_messages.where(read: false).count
-      @total_reviews = @freelancer.reviews_as_reviewee.count
-  end
 
+    @skills = @freelancer.skills || []
+    @contracts = @freelancer.contracts_as_freelancer
+      .where(status: :active)
+      .includes(:job, :client)
+      .order(created_at: :desc)
+
+    @proposals = @freelancer.proposals
+      .includes(:job, :contract)
+      .order(created_at: :desc)
+
+    @reviews = @freelancer.reviews_as_reviewee
+      .includes(:reviewer)
+      .order(created_at: :desc)
+      .limit(5)
+
+    @total_earned = @freelancer.payments.completed_payments.sum(:amount)
+    @proposals_count = @freelancer.proposals.count
+    @pending_proposals_count = @freelancer.proposals.where(status: :pending).count
+    @accepted_proposals_count = @freelancer.proposals.where(status: :accepted).count
+    @rejected_proposals_count = @freelancer.proposals.where(status: :rejected).count
+    @all_contracts_count = @freelancer.contracts_as_freelancer.count
+    @unread_messages_count = @freelancer.received_messages.where(read: false).count
+    @total_reviews = @freelancer.reviews_as_reviewee.count
+  end
 
   def edit_profile
     @freelancer = current_user
@@ -27,9 +38,9 @@ class FreelancerDashboardController < ApplicationController
     @freelancer = current_user
 
     if @freelancer.update(freelancer_params)
-      redirect_to freelancer_dashboard_path, notice: 'Profile updated successfully'
+      redirect_to freelancer_dashboard_path, notice: "Profile updated successfully"
     else
-      render :edit_profile
+      render :edit_profile, status: :unprocessable_entity
     end
   end
 
@@ -40,6 +51,6 @@ class FreelancerDashboardController < ApplicationController
   end
 
   def authorize_freelancer!
-    redirect_to root_path, alert: 'Not authorized' unless current_user.freelancer?
+    redirect_to root_path, alert: "Not authorized" unless current_user.freelancer?
   end
 end

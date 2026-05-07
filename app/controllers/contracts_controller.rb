@@ -10,6 +10,9 @@ class ContractsController < ApplicationController
       .includes(:freelancer, :job)
       .order(created_at: :desc)
       .limit(5)
+        @contracts = Contract.where(freelancer_id: current_user.id).or(Contract.where(client_id: current_user.id))
+    .includes(:freelancer, :job, :client)
+    .order(created_at: :desc) || []
   end
 
   def show

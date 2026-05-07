@@ -69,8 +69,8 @@
             <p class="mb-3 text-sm text-slate-700"><%= proposal.cover_letter %></p>
                   <div class="flex flex-wrap gap-2">
   <% if user_signed_in? && current_user == @job.user %>
-    <%= link_to "Accept", accept_job_proposal_path(@job, proposal), method: :patch, class: "rounded-md bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-800 hover:bg-green-200" %>
-    <%= link_to "Reject", reject_job_proposal_path(@job, proposal), method: :patch, class: "rounded-md bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 hover:bg-red-200" %>
+    <%= button_to "Accept", accept_job_proposal_path(@job, proposal), method: :patch, class: "rounded-md bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-800 hover:bg-green-200" %>
+    <%= button_to "Reject", reject_job_proposal_path(@job, proposal), method: :patch, class: "rounded-md bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 hover:bg-red-200" %>
   <% end %>
   <% if user_signed_in? && current_user != proposal.user %>
     <%= link_to "Message", conversations_path(receiver_id: proposal.user.id), method: :post, class: "rounded-md bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-200" %>

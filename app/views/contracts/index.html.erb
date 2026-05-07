@@ -35,7 +35,7 @@
                     <% when 'cancelled' %>
                       <span class="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-800">Cancelled</span>
                     <% else %>
-                      <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800"><%= contract.status.capitalize %></span>
+                     <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-800"><%= (contract.status || 'active').capitalize %></span>
                     <% end %>
                 </td>
                 <td class="px-3 py-3 text-slate-600"><%= contract.created_at.strftime("%b %d, %Y") %></td>

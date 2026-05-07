@@ -4,13 +4,26 @@ class ClientDashboardController < ApplicationController
 
   def index
     @client = current_user
-    @jobs = @client.jobs.order(created_at: :desc)
+
+    @jobs = @client.jobs.includes(:proposals).order(created_at: :desc)
     @active_jobs = @client.jobs.where(status: :in_progress)
     @completed_jobs = @client.jobs.where(status: :closed)
+
+    @pending_proposals = Proposal
+      .joins(:job)
+      .where(jobs: { user_id: @client.id }, proposals: { status: :pending })
+      .includes(:job, :user)
+      .order(created_at: :desc)
+
+    @active_contracts = Contract
+      .where(client_id: @client.id, status: :active)
+      .includes(:freelancer, :job)
+      .order(created_at: :desc)
+
     @total_spent = @client.payments.sum(:amount) rescue 0
-    @pending_proposals = Proposal.joins(:job).where(jobs: { user_id: @client.id }, proposals: { status: :pending }).count
-    @active_contracts = Contract.where(client_id: @client.id, status: :active).count
-    @month_spent = @client.payments.where(created_at: Time.current.beginning_of_month..Time.current.end_of_month).sum(:amount) rescue 0
+    @month_spent = @client.payments.where(
+      created_at: Time.current.beginning_of_month..Time.current.end_of_month
+    ).sum(:amount) rescue 0
   end
 
   def job_proposals
@@ -28,14 +41,15 @@ class ClientDashboardController < ApplicationController
     @payments = current_user.payments.order(created_at: :desc)
   end
 
-  def freelancers
-    @freelancers = User.where(role: 'freelancer')
-      .includes(:reviews_as_reviewee)
-  end
+    def freelancers
+  @freelancers = User.where(role: 'freelancer')
+    .includes(:skills, :reviews_as_reviewee)
+    .order(created_at: :desc)
+end
 
   private
 
   def authorize_client!
-    redirect_to root_path, alert: 'Only clients can access this' unless current_user.role == 'client'
+    redirect_to root_path, alert: "Only clients can access this" unless current_user.client?
   end
 end
