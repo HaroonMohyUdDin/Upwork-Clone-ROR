@@ -1,17 +1,15 @@
 class MessagesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_conversation
-  before_action :authorize_participant!
 
   def create
-    @message = @conversation.messages.build(content: message_params[:content])
-    assign_sender_and_receiver!(@message)
-
+    @message = @conversation.messages.build(message_params)
+    @message.sender = current_user
+    
     if @message.save
-      @conversation.touch
-      redirect_to conversation_path(@conversation), notice: "Message sent"
+      redirect_to @conversation, notice: 'Message sent'
     else
-      redirect_to conversation_path(@conversation), alert: @message.errors.full_messages.to_sentence
+      redirect_to @conversation, alert: 'Error sending message'
     end
   end
 
@@ -21,23 +19,7 @@ class MessagesController < ApplicationController
     @conversation = Conversation.find(params[:conversation_id])
   end
 
-  def authorize_participant!
-    participants = [@conversation.sender_id, @conversation.receiver_id]
-    unless participants.include?(current_user.id)
-      redirect_to conversations_path, alert: "You are not authorized to send messages in this conversation."
-    end
-  end
-
-  def assign_sender_and_receiver!(message)
-    message.sender = current_user
-    message.receiver = other_participant
-  end
-
-  def other_participant
-    @conversation.sender_id == current_user.id ? @conversation.receiver : @conversation.sender
-  end
-
   def message_params
-    params.require(:message).permit(:content)
+    params.require(:message).permit(:body)
   end
 end

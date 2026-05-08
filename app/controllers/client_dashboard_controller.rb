@@ -35,6 +35,11 @@ class ClientDashboardController < ApplicationController
     @month_spent = @client.payments.where(
       created_at: Time.current.beginning_of_month..Time.current.end_of_month
     ).sum(:amount) rescue 0
+
+  @unread_messages_count = Message.joins(:conversation)
+  .where(conversations: { client_id: @client.id })
+  .where(read: false)
+  .count
   end
 
   def job_proposals

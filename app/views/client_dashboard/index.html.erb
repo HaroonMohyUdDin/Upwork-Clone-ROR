@@ -20,8 +20,8 @@
     </div>
 
     <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
-      <h5 class="text-sm font-medium text-slate-500">Pending Proposals</h5>
-      <h2 class="mt-2 text-3xl font-bold text-blue-600"><%= @pending_proposals.count %></h2>
+      <h5 class="text-sm font-medium text-slate-500">Messages</h5>
+      <h2 class="mt-2 text-3xl font-bold text-red-600"><%= @unread_messages_count %></h2>
     </div>
 
     <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition">
@@ -34,7 +34,6 @@
       <h2 class="mt-2 text-3xl font-bold text-slate-900">$<%= @total_spent %></h2>
     </div>
   </div>
-
   <!-- Contract Status Tiles -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
     <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -117,11 +116,11 @@
                   <%= proposal.created_at.strftime("%b %d, %Y") %>
                 </td>
                 <td class="px-4 py-3">
-                  <div class="flex flex-wrap gap-2">
-                    <%= link_to "Accept", accept_job_proposal_path(proposal.job, proposal), method: :patch, class: "rounded-md bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-800 hover:bg-green-200" %>
-                    <%= link_to "Reject", reject_job_proposal_path(proposal.job, proposal), method: :patch, class: "rounded-md bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 hover:bg-red-200" %>
-                    <%= link_to "Message", message_freelancer_job_proposal_path(proposal.job, proposal), method: :post, class: "rounded-md bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-800 hover:bg-blue-200" %>
-                  </div>
+  <div class="flex flex-wrap gap-2">
+    <%= button_to "Accept", accept_job_proposal_path(proposal.job, proposal), method: :patch, class: "rounded-md bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-800 hover:bg-green-200" %>
+    <%= button_to "Reject", reject_job_proposal_path(proposal.job, proposal), method: :patch, data: { turbo_confirm: "Reject this proposal?" }, class: "rounded-md bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 hover:bg-red-200" %>
+  </div>
+</td>
                 </td>
               </tr>
             <% end %>
@@ -136,65 +135,72 @@
   </div>
 
   <!-- Recent Jobs Section -->
-  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-    <div class="mb-6 flex items-center justify-between">
-      <div>
-        <h2 class="text-2xl font-bold text-slate-900">Recent Jobs</h2>
-        <p class="mt-1 text-sm text-slate-600">Track all your posted jobs and manage proposals.</p>
-      </div>
+<div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+  <div class="mb-6 flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-slate-900">Recent Jobs</h2>
+      <p class="mt-1 text-sm text-slate-600">Track all your posted jobs and manage proposals.</p>
     </div>
-
-    <% if @jobs.any? %>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-200 text-sm">
-          <thead class="bg-slate-50">
-            <tr>
-              <th class="px-4 py-3 text-left font-semibold text-slate-600">Title</th>
-              <th class="px-4 py-3 text-left font-semibold text-slate-600">Status</th>
-              <th class="px-4 py-3 text-left font-semibold text-slate-600">Budget</th>
-              <th class="px-4 py-3 text-left font-semibold text-slate-600">Proposals</th>
-              <th class="px-4 py-3 text-left font-semibold text-slate-600">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            <% @jobs.each do |job| %>
-              <tr class="hover:bg-slate-50 transition">
-                <td class="px-4 py-3 font-medium text-slate-900 max-w-xs truncate"><%= job.title %></td>
-                <% status_class = case job.status
-  when 'open' then 'bg-green-100 text-green-800'
-  when 'in_progress' then 'bg-blue-100 text-blue-800'
-  else 'bg-gray-100 text-gray-800'
-end %>
-<span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold <%= status_class %>">
-  <%= (job.status || 'open').titleize %>
-</span>
-                </td>
-                <td class="px-4 py-3 font-medium text-slate-900">$<%= job.budget %></td>
-                <td class="px-4 py-3">
-                  <span class="inline-flex items-center justify-center rounded-full bg-blue-100 px-2.5 py-1 text-xs font-bold text-blue-800">
-                    <%= job.proposals.count %>
-                  </span>
-                </td>
-                <td class="px-4 py-3">
-                  <div class="flex flex-wrap gap-2">
-                  <%= link_to "View", job_path(job), class: "rounded-md bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-800 hover:bg-blue-200" %>
-<%= link_to "Edit", edit_job_path(job), class: "rounded-md bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-800 hover:bg-amber-200" %>
-<% if job.status == 'open' %>
-  <%= link_to "Close", close_job_path(job), method: :patch, class: "rounded-md bg-yellow-100 px-3 py-1.5 text-xs font-semibold text-yellow-800 hover:bg-yellow-200" %>
-<% end %>
-<%= link_to "Delete", job_path(job), method: :delete, data: { confirm: "Are you sure?" }, class: "rounded-md bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-800 hover:bg-red-200" %>
-                  </div>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    <% else %>
-      <div class="py-8 text-center">
-        <p class="mb-4 text-slate-600">You haven't posted any jobs yet.</p>
-        <%= link_to "Post your first job", new_job_path, class: "inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 font-semibold text-white hover:bg-emerald-700" %>
-      </div>
-    <% end %>
   </div>
+
+  <% if @jobs.any? %>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="px-4 py-3 text-left font-semibold text-slate-600">Title</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-600">Status</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-600">Budget</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-600">Proposals</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-600">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100">
+          <% @jobs.each do |job| %>
+            <tr class="hover:bg-slate-50 transition">
+              <td class="px-4 py-3 font-medium text-slate-900">
+                <%= job.title %>
+              </td>
+
+              <td class="px-4 py-3">
+                <% status_class =
+                  case job.status
+                  when "open" then "bg-green-100 text-green-800"
+                  when "in_progress" then "bg-blue-100 text-blue-800"
+                  when "closed" then "bg-slate-100 text-slate-800"
+                  else "bg-slate-100 text-slate-800"
+                  end %>
+
+                <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold <%= status_class %>">
+                  <%= job.status.titleize %>
+                </span>
+              </td>
+
+              <td class="px-4 py-3 font-medium text-slate-900">
+                $<%= job.budget %>
+              </td>
+
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center justify-center rounded-full bg-blue-100 px-2.5 py-1 text-xs font-bold text-blue-800">
+                  <%= job.proposals.count %>
+                </span>
+              </td>
+
+              <td class="px-4 py-3">
+                <div class="flex flex-wrap gap-2">
+                  <%= link_to "View", job_path(job), class: "rounded-md bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-800 hover:bg-blue-200" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="py-8 text-center">
+      <p class="mb-4 text-slate-600">You haven't posted any jobs yet.</p>
+      <%= link_to "Post your first job", new_job_path, class: "inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 font-semibold text-white hover:bg-emerald-700" %>
+    </div>
+  <% end %>
 </div>

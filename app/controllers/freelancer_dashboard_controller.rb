@@ -31,7 +31,7 @@ class FreelancerDashboardController < ApplicationController
   @accepted_proposals_count = @freelancer.proposals.where(status: :accepted).count
   @rejected_proposals_count = @freelancer.proposals.where(status: :rejected).count
   @all_contracts_count = @freelancer.contracts_as_freelancer.count
-  @unread_messages_count = @freelancer.received_messages.where(read: false).count
+ @unread_messages_count = Message.joins(:conversation).where(conversations: { freelancer_id: @freelancer.id }, read: false).where.not(sender_id: @freelancer.id).count
   @total_reviews = @freelancer.reviews_as_reviewee.count
 end
 

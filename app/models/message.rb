@@ -1,11 +1,22 @@
 class Message < ApplicationRecord
-  belongs_to :sender, class_name: 'User'      # Who sent the message
-  belongs_to :receiver, class_name: 'User'    # Who received the message
-  belongs_to :conversation                     # Which conversation
+  belongs_to :conversation
+  belongs_to :sender, class_name: "User"
+  belongs_to :receiver, class_name: "User", optional: true
 
-  # ===== VALIDATIONS =====
-  validates :content, presence: true
-  validates :sender_id, presence: true
-  validates :receiver_id, presence: true
-  validates :conversation_id, presence: true
+  validates :body, presence: true, length: { maximum: 2000 }
+  validate :sender_must_be_conversation_participant
+
+  scope :ordered, -> { order(:created_at) }
+
+  def mark_as_read
+    update(read: true)
+  end
+
+  private
+
+  def sender_must_be_conversation_participant
+    return if conversation&.participant?(sender)
+
+    errors.add(:sender, "must be part of this conversation")
+  end
 end

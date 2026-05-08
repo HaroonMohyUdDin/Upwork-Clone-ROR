@@ -5,21 +5,24 @@ class JobsController < ApplicationController
 
   # List all jobs (public view)
   def index
-  @jobs = Job.open_jobs.recent
-  
-  # Apply filters
-  @jobs = @jobs.where(category: params[:category]) if params[:category].present?
-  @jobs = @jobs.where("budget >= ?", params[:min_budget]) if params[:min_budget].present?
-  @jobs = @jobs.where("budget <= ?", params[:max_budget]) if params[:max_budget].present?
-  
-  @jobs = @jobs.limit(12)
-end
+    @jobs = Job.open_jobs.recent
+    
+    # Apply filters
+    @jobs = @jobs.where(category: params[:category]) if params[:category].present?
+    @jobs = @jobs.where("budget >= ?", params[:min_budget]) if params[:min_budget].present?
+    @jobs = @jobs.where("budget <= ?", params[:max_budget]) if params[:max_budget].present?
+    
+    @jobs = @jobs.limit(12)
+  end
 
   # Show job details with proposals
   def show
     @proposals = @job.proposals.includes(:user).order(created_at: :desc)
     @proposal_count = @proposals.count
-    @accepted_proposal = @proposals.find_by(status: :accepted)
+    @accepted_proposal = @proposals.find_by(status: 'accepted')
+    @conversation = nil
+    @messages = []
+    @message = Message.new
   end
 
   # New job form (CLIENT ONLY)
@@ -56,31 +59,33 @@ end
     end
   end
 
-def close
-  authorize_job_owner!
-  
-  if @job.update(status: :closed)
-    redirect_to @job, notice: "Job closed successfully"
-  else
-    redirect_to @job, alert: "Error closing job"
+  def close
+    authorize_job_owner!
+    
+    if @job.update(status: 'closed')
+      redirect_to @job, notice: "Job closed successfully"
+    else
+      redirect_to @job, alert: "Error closing job"
+    end
   end
-end
 
-def destroy
-  authorize_job_owner!
-  
-  @job.destroy
-  redirect_to client_dashboard_path, notice: "Job deleted successfully"
-rescue StandardError => e
-  redirect_to @job, alert: "Unable to delete job: #{e.message}"
-end
+  def destroy
+    authorize_job_owner!
+    
+    job_title = @job.title
+    
+    if @job.destroy
+      redirect_to client_dashboard_path, notice: "Job '#{job_title}' deleted successfully"
+    else
+      redirect_to @job, alert: "Unable to delete job"
+    end
+  end
+
   private
 
   def set_job
     @job = Job.find(params[:id])
   end
-
- private
 
   def job_params
     params.require(:job).permit(:title, :description, :budget, :category, :deadline, :status)

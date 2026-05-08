@@ -1,0 +1,28 @@
+<div id="new_message_form">
+
+  <%= form_with(model: [conversation, message], class: "flex items-end gap-3") do |f| %>
+
+    <!-- Input -->
+    <div class="flex-1">
+      <%= f.text_area :body,
+        rows: 1,
+        placeholder: "Write a message...",
+        class: "w-full resize-none rounded-2xl border border-slate-300 bg-slate-50 px-5 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-100" %>
+    </div>
+
+    <!-- Button -->
+    <%= f.submit "Send",
+      class: "rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md" %>
+
+  <% end %>
+
+  <!-- Errors -->
+  <% if message.errors.any? %>
+    <div class="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+      <p class="text-sm text-red-600">
+        <%= message.errors.full_messages.to_sentence %>
+      </p>
+    </div>
+  <% end %>
+
+</div>

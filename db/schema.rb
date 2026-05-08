@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_06_085909) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_07_120048) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -32,11 +32,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_06_085909) do
   end
 
   create_table "conversations", force: :cascade do |t|
+    t.bigint "client_id", null: false
     t.datetime "created_at", null: false
-    t.integer "receiver_id", null: false
-    t.integer "sender_id", null: false
+    t.bigint "freelancer_id", null: false
     t.datetime "updated_at", null: false
-    t.index ["sender_id", "receiver_id"], name: "index_conversations_on_sender_id_and_receiver_id", unique: true
+    t.index ["client_id", "freelancer_id"], name: "index_conversations_on_client_id_and_freelancer_id", unique: true
+    t.index ["client_id"], name: "index_conversations_on_client_id"
+    t.index ["freelancer_id"], name: "index_conversations_on_freelancer_id"
   end
 
   create_table "jobs", force: :cascade do |t|
@@ -53,15 +55,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_06_085909) do
   end
 
   create_table "messages", force: :cascade do |t|
-    t.text "content", null: false
+    t.text "body", null: false
     t.integer "conversation_id", null: false
     t.datetime "created_at", null: false
     t.boolean "read", default: false
-    t.integer "receiver_id", null: false
     t.integer "sender_id", null: false
     t.datetime "updated_at", null: false
     t.index ["conversation_id"], name: "index_messages_on_conversation_id"
-    t.index ["sender_id", "receiver_id"], name: "index_messages_on_sender_id_and_receiver_id"
   end
 
   create_table "payments", force: :cascade do |t|
@@ -145,10 +145,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_06_085909) do
   add_foreign_key "contracts", "proposals"
   add_foreign_key "contracts", "users", column: "client_id"
   add_foreign_key "contracts", "users", column: "freelancer_id"
-  add_foreign_key "conversations", "users", column: "receiver_id"
-  add_foreign_key "conversations", "users", column: "sender_id"
+  add_foreign_key "conversations", "users", column: "client_id"
+  add_foreign_key "conversations", "users", column: "freelancer_id"
   add_foreign_key "jobs", "users"
-  add_foreign_key "messages", "users", column: "receiver_id"
   add_foreign_key "messages", "users", column: "sender_id"
   add_foreign_key "payments", "jobs"
   add_foreign_key "payments", "users"

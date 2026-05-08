@@ -1,31 +1,121 @@
-<div class="space-y-6">
-  <h2 class="text-2xl font-bold text-slate-900">Conversation with <%= @conversation.sender == current_user ? @conversation.receiver.name : @conversation.sender.name %></h2>
+<div class="mx-auto flex h-[calc(100vh-80px)] max-w-7xl gap-5 px-4 py-5">
 
-  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-    <div class="space-y-4 max-h-96 overflow-y-auto">
-      <% @messages.each do |message| %>
-        <div class="flex <%= 'justify-end' if message.sender == current_user %>">
-          <div class="<%= message.sender == current_user ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-900' %> max-w-xs rounded-lg px-4 py-2">
-            <p class="mb-1 text-xs font-medium <%= message.sender == current_user ? 'text-emerald-100' : 'text-slate-500' %>"><%= message.sender.name %></p>
-            <p class="text-sm"><%= message.content %></p>
-            <p class="mt-1 text-xs <%= message.sender == current_user ? 'text-emerald-200' : 'text-slate-500' %>"><%= message.created_at.strftime("%I:%M %p") %></p>
-          </div>
+  <!-- LEFT SIDEBAR -->
+  <aside class="flex w-80 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+    <!-- HEADER -->
+    <div class="border-b border-slate-100 p-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-slate-900">
+            Messages
+          </h2>
+
+          <p class="mt-1 text-sm text-slate-500">
+            <%= @conversations.count %> conversations
+          </p>
         </div>
-      <% end %>
+
+        <%= link_to conversations_path,
+          class: "rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-100" do %>
+          ← Back
+        <% end %>
+      </div>
     </div>
-  </div>
 
-  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-    <%= form_with(model: [@conversation, @message], local: true, class: "space-y-4") do |f| %>
-      <div>
-        <%= f.label :content, class: "mb-2 block text-sm font-medium text-slate-700" %>
-        <%= f.text_area :content, rows: 3, class: "w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200", placeholder: "Type your message..." %>
-      </div>
-      <div>
-        <%= f.submit "Send Message", class: "rounded-full bg-emerald-600 px-5 py-2 font-semibold text-white hover:bg-emerald-700" %>
-      </div>
-    <% end %>
-  </div>
+    <!-- CONVERSATIONS -->
+    <div class="flex-1 overflow-y-auto px-3 py-3">
+      <div class="space-y-2">
 
-  <%= link_to "Back to Messages", conversations_path, class: "inline-flex rounded-full border border-slate-300 px-5 py-2 font-semibold text-slate-700 hover:bg-slate-100" %>
+        <% @conversations.each do |conversation| %>
+          <% other_user = conversation.other_party(current_user) %>
+          <% last_message = conversation.messages.last %>
+          <% active = @conversation.id == conversation.id %>
+
+          <%= link_to conversation_path(conversation),
+            class: "flex items-center gap-3 rounded-xl px-3 py-3 transition #{active ? 'border border-emerald-200 bg-emerald-50' : 'hover:bg-slate-50'}" do %>
+
+            <!-- Avatar -->
+            <div class="flex h-11 w-11 items-center justify-center rounded-full bg-slate-200 text-sm font-bold text-slate-700">
+              <%= other_user.name.first.upcase %>
+            </div>
+
+            <!-- Info -->
+            <div class="min-w-0 flex-1">
+
+              <div class="flex items-center justify-between">
+                <p class="truncate text-sm font-semibold text-slate-900">
+                  <%= other_user.name %>
+                </p>
+
+                <span class="text-xs text-slate-400">
+                  <%= conversation.updated_at.strftime("%b %d") %>
+                </span>
+              </div>
+
+              <p class="mt-1 truncate text-xs text-slate-500">
+                <%= last_message.present? ? last_message.body : "No messages yet" %>
+              </p>
+
+            </div>
+          <% end %>
+        <% end %>
+
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT CHAT AREA -->
+  <section class="flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+    <!-- CHAT HEADER -->
+    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+
+      <div class="flex items-center gap-3">
+
+        <!-- Avatar -->
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
+          <%= @conversation.other_party(current_user).name.first.upcase %>
+        </div>
+
+        <!-- User Info -->
+        <div>
+          <h2 class="text-base font-semibold text-slate-900">
+            <%= @conversation.other_party(current_user).name %>
+          </h2>
+
+          <p class="text-sm text-slate-500">
+            <%= @conversation.other_party(current_user).role.titleize %>
+          </p>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="hidden md:flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+        <div class="h-2 w-2 rounded-full bg-emerald-500"></div>
+        Active Conversation
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div id="messages"
+         class="flex-1 overflow-y-auto bg-slate-50 px-6 py-6"
+         data-controller="chat-scroll">
+
+      <%= turbo_stream_from [@conversation, current_user] %>
+
+      <%= render "messages/list",
+        conversation: @conversation,
+        current_user: current_user %>
+    </div>
+
+    <!-- MESSAGE FORM -->
+    <div class="border-t border-slate-100 bg-white px-6 py-4">
+
+      <%= render "messages/form",
+        conversation: @conversation,
+        message: @message %>
+
+    </div>
+  </section>
 </div>
